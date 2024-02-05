@@ -10,7 +10,7 @@ const subCollectionSchema = new Schema({
         type: Number,
         required: true;
     }
-});
+}, { timestamps: true });
 
 mongoose.model("SubCollection", subCollectionSchema);
 
