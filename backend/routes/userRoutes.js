@@ -1,57 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/userModel");
+const {
+    getUsers,
+    getUser,
+    createUser,
+    deleteUser,
+    updateUser
+} = require("../controllers/userController")
 
-// GET all
-router.get('/', (req, res) => {
-    res.json({mssg: "GET all users"})
-});
+// Get all users
+router.get('/', getUsers);
 
-// GET single
-router.get('/:id', (req, res) => {
-    res.json({mssg: "GET a single user"})
-});
+// Get a single user
+router.get('/:id', getUser);
 
-// POST user
-router.post('/', async (req, res) => {
-    const { 
-        username, 
-        password, 
-        email, 
-        age, 
-        numPublicCollections, 
-        publicCollections, 
-        privateCollections, 
-        following, 
-        followers
-    } = req.body;
-    
-    try {
-        const user = await User.create({ 
-            username, 
-            password, 
-            email, 
-            age, 
-            numPublicCollections, 
-            publicCollections, 
-            privateCollections, 
-            following, 
-            followers
-        });
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(400).json({error: error.message})
-    }
-})
+// Create a user
+router.post('/', createUser);
 
-// DELETE user
-router.delete('/:id', (req, res) => {
-    res.json({mssg: "DELETE a new user"})
-})
+// Delete a user
+router.delete('/:id', deleteUser)
 
-// UPDATE user
-router.patch('/:id', (req, res) => {
-    res.json({mssg: "UPDATE a new user"})
-})
+// Update a user
+router.patch('/:id', updateUser)
 
 module.exports = router;

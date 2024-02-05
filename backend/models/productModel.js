@@ -14,10 +14,10 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    // color: {
-    //     type: String,
-    //     required: true,
-    // },
+    color: {
+        type: String,
+        required: true,
+    },
     // image: {
     //     type: image,
     //     required: true,
