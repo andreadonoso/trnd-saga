@@ -1,6 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
-import LandingPage from "./pages/landingPage"
+import Header from "./components/header"
+import FeedPage from "./pages/feedPage"
+import ExplorePage from "./pages/explorePage"
+import WishListPage from "./pages/wishListPage"
+import AccountPage from "./pages/accountPage"
 
 const theme = createTheme({
   palette: {
@@ -13,12 +17,15 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-    <div className="App">
-        {/* Navbar */}
-      <div className="content">
-        <LandingPage />
-      </div>
-    </div>
+      <BrowserRouter>
+          <Header />
+          <Routes>
+            <Route exact path="/" element={<ExplorePage />} />
+            <Route path="/feed" element={<FeedPage />} />
+            <Route path="/wishlist" element={<WishListPage />} />
+            <Route path="/account" element={<AccountPage />} />
+          </Routes>
+    </BrowserRouter>
     </ThemeProvider>
   );
 }

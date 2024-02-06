@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Typography, Container, Box, InputBase, styled, alpha } from '@mui/material';
+import { AppBar, Toolbar, Container, Box, InputBase, styled, alpha } from '@mui/material';
+import { Link } from 'react-router-dom'
 
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
@@ -58,38 +59,8 @@ const NavBar = () => {
             {/* <Container maxWidth="xl"> */}
             <Toolbar sx={{justifyContent: "space-between"}}>
                 <Box sx={{ display: "flex", width: "150px", justifyContent: "space-between"}}>
-                    <Typography
-                        variant="p"
-                        noWrap
-                        component="a"
-                        href="/home"
-                        sx={{
-                        // mr: 2,
-                        // display: { xs: 'none', md: 'flex' },
-                        fontFamily: 'Roboto',
-                        fontWeight: 100,
-                        color: 'black',
-                        textDecoration: 'none',
-                        }}
-                    >
-                        Home
-                    </Typography>
-                    <Typography
-                        variant="p"
-                        noWrap
-                        component="a"
-                        href="/explore"
-                        sx={{
-                        // mr: 2,
-                        // display: { xs: 'none', md: 'flex' },
-                        fontFamily: 'Roboto',
-                        fontWeight: 100,
-                        color: 'black',
-                        textDecoration: 'none',
-                        }}
-                    >
-                        Explore
-                    </Typography>
+                    <Link to="/feed">Home</Link>
+                    <Link to="/">Explore</Link>
                 </Box>
                 <Search > 
                     <SearchIconWrapper>
@@ -101,12 +72,8 @@ const NavBar = () => {
                     />
                 </Search>
                 <Box sx={{ display: "flex", width: "150px", justifyContent: "space-between"}}>
-                    <ShoppingBagOutlinedIcon color="primary" size="large"
-                    // edge="start"
-                    // aria-label="menu"
-                    // sx={{ mr: 2}}
-                    />
-                    <AccountCircleOutlinedIcon color="primary"/>
+                    <Link to="/wishlist"><ShoppingBagOutlinedIcon color="primary"/></Link>
+                    <Link to="/account"><AccountCircleOutlinedIcon color="primary"/></Link>
                 </Box>
             </Toolbar>
             {/* </Container> */}

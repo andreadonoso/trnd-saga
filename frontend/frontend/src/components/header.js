@@ -1,7 +1,7 @@
 import LogoBar from "./logoBar"
 import NavBar from "./navBar"
 
-const CompleteAppBar = () => {
+const Header = () => {
     return ( 
         <div>
             <LogoBar />
@@ -10,4 +10,4 @@ const CompleteAppBar = () => {
      );
 }
  
-export default CompleteAppBar;
+export default Header;
