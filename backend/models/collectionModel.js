@@ -14,6 +14,10 @@ const collectionSchema = new Schema({
         type: Number,
         required: true;
     },
+    // link: {
+    //     type: Number,
+    //     required: true;
+    // },
     // comments: {
     //     type: [String],
     //     required: true;
