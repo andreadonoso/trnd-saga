@@ -53,6 +53,7 @@ const theme = createTheme({
               fontSize: "large"
             },
             '& .MuiSvgIcon-root': {
+              paddingLeft: "14px",
               fontSize: "25px"
             }
         },

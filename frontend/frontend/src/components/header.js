@@ -54,6 +54,7 @@ const Header = () => {
                 anchor={"top"}
                 open={state}
                 onClose={toggleDrawer}
+                transitionDuration={500}
               >
                 <IconButton onClick={ toggleDrawer } sx={{justifyContent: "end", alignItems: "start",}}>
                   <CloseOutlinedIcon sx={{fontSize:"5px"}}/>
