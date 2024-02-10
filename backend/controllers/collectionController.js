@@ -1,5 +1,6 @@
 const Collection = require("../models/collectionModel");
 const User = require("../models/userModel");
+const Product = require("../models/userModel");
 const mongoose = require("mongoose");
 
 // Get all collections
@@ -37,7 +38,9 @@ const createCollection = async (req, res) => {
         comments,
         banner,
         subCollections,
-        products
+        maxSubCollections,
+        products,
+        maxProducts,
     } = req.body;
 
     if(!mongoose.Types.ObjectId.isValid(owner)) {
@@ -54,7 +57,9 @@ const createCollection = async (req, res) => {
             comments,
             banner,
             subCollections,
-            products
+            maxSubCollections,
+            products,
+            maxProducts,
         });
 
         const user = await User.findOneAndUpdate(

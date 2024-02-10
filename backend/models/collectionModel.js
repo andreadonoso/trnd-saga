@@ -47,12 +47,22 @@ const collectionSchema = new Schema({
         }],
         required: false
     },
+    maxSubCollections: {
+        type: Number,
+        default: 8,
+        required: false
+    },
     products: {
         type: [{
             type: Schema.Types.ObjectId,
             ref: "Product"
         }],
         default: [],
+        required: false
+    },
+    maxProducts: {
+        type: Number,
+        default: 80,
         required: false
     },
 }, { timestamps: true });
