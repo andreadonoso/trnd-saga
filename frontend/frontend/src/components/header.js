@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, IconButton, Drawer } from '@mui/material/';
+import { AppBar, Toolbar, Typography, IconButton, Drawer, alpha } from '@mui/material/';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles';
@@ -15,7 +15,6 @@ import TagIcon from '@mui/icons-material/Tag';
 
 const Header = () => {
     const [state, setState] = useState(false);
-
     const theme = useTheme();
     const isBiggerScreenUp = useMediaQuery(theme.breakpoints.up('sm'));
     const isSmallScreenDowm = useMediaQuery(theme.breakpoints.down('sm'));
@@ -34,12 +33,11 @@ const Header = () => {
             <Link to="/" style={{ textDecoration: 'none' }}> 
               <Typography
                 aria-label="Logo"
-                variant= {isBiggerScreenUp ? "h4" : "h5"}
+                variant={isBiggerScreenUp ? "h4" : "h5"}
                 noWrap
                 sx={{
                   fontFamily: 'bowlby one',
                   fontWeight: 700,
-                  color: 'black',
                   textDecoration: 'none',
                   ml:1
                 }}
@@ -94,10 +92,12 @@ const Header = () => {
           {isSmallScreenDowm ? null :
             <div style={{ width: '150px', display:"flex", justifyContent:"start", alignItems:"end" }}>
                 <Link to="/feed" style={{ textDecoration: 'none' }}>
-                  <Typography variant="p" fontWeight="600" sx={{ mr:5 }}>Feed</Typography>
+                    <Typography variant="p" fontWeight="600" sx={{ mr:5, '&:hover': {color:  alpha( theme.palette.mode === 'light' ? '#000000' : '#ffffff', 0.5)} }}>Feed</Typography>
                 </Link>
                 <Link to="/" style={{ textDecoration: 'none' }}>
-                  <Typography variant="p" fontWeight="600">Explore</Typography>
+                    <Typography variant="p" fontWeight="600" sx={{'&:hover': { color:  alpha( theme.palette.mode === 'light' ? '#000000' : '#ffffff', 0.5)} }}>
+                      Explore
+                    </Typography>
                 </Link>
             </div>
           }
@@ -105,10 +105,10 @@ const Header = () => {
           {isSmallScreenDowm ? null :
             <div style={{ width: '150px', display:"flex", justifyContent:"end" }}>
                 <Link to="/wishlist" style={{ textDecoration: 'none' }}>
-                    <ShoppingBagOutlinedIcon  />
+                    <ShoppingBagOutlinedIcon  sx={{'&:hover': { color:  alpha( theme.palette.mode === 'light' ? '#000000' : '#ffffff', 0.5)} }}/>
                 </Link>
                 <Link to="/account">
-                    <AccountCircleOutlinedIcon  sx={{ ml:5 }}/>
+                    <AccountCircleOutlinedIcon  sx={{ ml:5, '&:hover': { color:  alpha( theme.palette.mode === 'light' ? '#000000' : '#ffffff', 0.5)}}}/>
                 </Link>
             </div>
           }
