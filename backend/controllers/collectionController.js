@@ -1,6 +1,6 @@
 const Collection = require("../models/collectionModel");
-const User = require("../models/userModel");
-const Product = require("../models/userModel");
+// const User = require("../models/userModel");
+// const Product = require("../models/userModel");
 const mongoose = require("mongoose");
 
 // Get all collections
@@ -43,9 +43,9 @@ const createCollection = async (req, res) => {
         maxProducts,
     } = req.body;
 
-    if(!mongoose.Types.ObjectId.isValid(owner)) {
-        return res.status(404).json({error: "The user does not exist."})
-    }
+    // if(!mongoose.Types.ObjectId.isValid(owner)) {
+    //     return res.status(404).json({error: "The user does not exist."})
+    // }
 
     try {
 
@@ -62,15 +62,15 @@ const createCollection = async (req, res) => {
             maxProducts,
         });
 
-        const user = await User.findOneAndUpdate(
-            {_id: owner},
-            { $push: { privateCollections: collection._id } }, 
-            { new: true }
-        )
+        // const user = await User.findOneAndUpdate(
+        //     {_id: owner},
+        //     { $push: { privateCollections: collection._id } }, 
+        //     { new: true }
+        // )
     
-        if(!user) {
-            return res.status(404).json({error: "The user does not exist."})
-        }
+        // if(!user) {
+        //     return res.status(404).json({error: "The user does not exist."})
+        // }
 
         res.status(200).json(collection);
     } catch(error)
@@ -114,14 +114,14 @@ const deleteCollection = async (req, res) => {
         res.status(404).json({error: "The collection does not exist."})
     }
 
-    const user = await User.findOneAndUpdate(
-        {_id: collection.owner},
-        { $pull: { privateCollections: id } }, 
-    )
+    // const user = await User.findOneAndUpdate(
+    //     {_id: collection.owner},
+    //     { $pull: { privateCollections: id } }, 
+    // )
 
-    if(!user) {
-        return res.status(404).json({error: "The user does not exist."})
-    }
+    // if(!user) {
+    //     return res.status(404).json({error: "The user does not exist."})
+    // }
 
     res.status(200).json(collection);
 };

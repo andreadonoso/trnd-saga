@@ -15,12 +15,12 @@ router.get('/', getProducts);
 router.get('/:id', getProduct);
 
 // Create a product
-router.get('/', createProduct);
+router.post('/', createProduct);
 
 // Update a product
-router.get('/:id', updateProduct);
+router.patch('/:id', updateProduct);
 
 // Delete a product
-router.get('/:id', deleteProduct);
+router.delete('/:id', deleteProduct);
 
 module.exports = router;

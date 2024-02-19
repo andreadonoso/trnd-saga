@@ -1,18 +1,17 @@
-const mongoose = require("mongoose");
 const Product = require("../models/productModel");
+const mongoose = require("mongoose");
 
 // Get all products
 const getProducts = async (req, res) => {
-    const products = await Product.find({}).sort({createdAt: -1})
+    const products = await Product.find({}).sort({createdAT: -1})
     res.status(200).json(products);
 }
 
 // Get a single product
 const getProduct = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(id))
-    {
+    if(!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({error: "The product does not exist."});
     }
 
@@ -50,22 +49,21 @@ const createProduct = async (req, res) => {
         });
         
         res.status(200).json(product);
-    } catch {
-        return res.status(400).json({error: error.message});
+    } catch (error) {
+        res.status(400).json({error: error.message});
     }
 
 }
 
 // Update a product
 const updateProduct = async (req,res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(id))
-    {
-        return res.status(404).json({error: "The product does not exist."});
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        res.status(404).json({error: "The product does not exist."});
     }
 
-    const product = await Collection.findOneAndUpdate({_id: id}, {
+    const product = await Product.findOneAndUpdate({_id: id}, {
         ...req.body
     })
 
@@ -74,19 +72,18 @@ const updateProduct = async (req,res) => {
         return res.status(404).json({error: "The product does not exist."});
     }
 
-    res.status(200).json(product)
+    res.status(200).json(product);
 }
 
 // Delete a product
 const deleteProduct = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(id))
-    {
-        return res.status(404).json({error: "The product does not exist."});
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        res.status(404).json({error: "The product does not exist."});
     }
 
-    const product = await Product.findOneAndDelete(id);
+    const product = await Product.findOneAndDelete({_id: id});
 
     if(!product) {
         return res.status(404).json({error: "The product does not exist."});
@@ -95,7 +92,7 @@ const deleteProduct = async (req, res) => {
     res.status(200).json(product);
 }
 
-module.export = {
+module.exports = {
     getProducts,
     getProduct,
     createProduct,

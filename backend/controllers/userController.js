@@ -12,13 +12,13 @@ const getUser = async (req, res) => {
     const { id } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({error: "The user does not exist."})
+        return res.status(404).json({error: "The user does not exist."});
     }
 
     const user = await User.findById(id);
 
     if(!user) {
-        return res.status(404).json({error: "The user does not exist."})
+        return res.status(404).json({error: "The user does not exist."});
     }
 
     res.status(200).json(user);
@@ -70,7 +70,7 @@ const createUser = async (req, res) => {
 
 // Update a user
 const updateUser = async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(id)){
         res.status(404).json({error: "The user does not exist."});
@@ -81,24 +81,24 @@ const updateUser = async (req, res) => {
     })
 
     if(!user) {
-        return res.status(404).json({error: "The user does not exist."})
+        return res.status(404).json({error: "The user does not exist."});
     }
 
-    res.status(200).json(user)
+    res.status(200).json(user);
 }
 
 // Delete a user
 const deleteUser = async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(id)){
-        res.status(404).json({error: "The user does not exist."})
+        res.status(404).json({error: "The user does not exist."});
     }
 
-    const user = await User.findOneAndDelete({_id: id})
+    const user = await User.findOneAndDelete({_id: id});
 
     if(!user) {
-        return res.status(404).json({error: "The user does not exist."})
+        return res.status(404).json({error: "The user does not exist."});
     }
 
     res.status(200).json(user)
