@@ -3,7 +3,11 @@ const express = require("express");
 const dotenv = require("dotenv").config();
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser');
+
 const userRoutes = require("./routes/userRoutes");
+const collectionRoutes = require("./routes/collectionRoutes");
+const productRoutes = require("./routes/productRoutes");
+
 const URI = process.env.URI;
 const PORT = process.env.PORT
 
@@ -26,3 +30,5 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/collections", collectionRoutes);
+app.use("/api/products", productRoutes);

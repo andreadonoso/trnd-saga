@@ -18,46 +18,70 @@ const userSchema = new Schema({
         type: Number,
         required: true
     },
-    numPublicCollections: {
-        type: Number,
-        required: true
+    profile: {
+        type: String,
+        required: false
+    },
+    bio: {
+        type: String,
+        required: false
     },
     publicCollections: {
-        type: Number,
-        required: true
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "Collection"
+        }],
+        default: [],
+        required: false
     },
     privateCollections: {
-        type: Number,
-        required: true
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "Collection"
+        }],
+        default: [],
+        required: false
     },
     following: {
-        type: Number,
-        required: true
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        }],
+        default: [],
+        required: false
     },
     followers: {
-        type: Number,
-        required: true
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        }],
+        default: [],
+        required: false
     },
-    // cart: {
-    //     type: [Product],
-    //     required: true
-    // },
-    // instagram: {
-    //     type: url/link???,
-    //     required: false
-    // },
-    // youtube: {
-    //     type: String,
-    //     required: false
-    // },
-    // tiktok: {
-    //     type: String,
-    //     required: false
-    // },
-    // x: {
-    //     type: String,
-    //     required: false
-    // },
+    wishlist: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "Product"
+        }],
+        default: [],
+        required: false
+    },
+    instagram: {
+        type: String,
+        required: false
+    },
+    youtube: {
+        type: String,
+        required: false
+    },
+    tiktok: {
+        type: String,
+        required: false
+    },
+    x: {
+        type: String,
+        required: false
+    },
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);

@@ -3,47 +3,70 @@ const Schema = mongoose.Schema;
 
 const collectionSchema = new Schema({
     owner: {
-        type: User,
-        required: true,
+        
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-    likes: {
-        type: Number,
-        required: true;
-    },
-    watchers: {
-        type: Number,
-        required: true;
-    },
-    // link: {
-    //     type: Number,
-    //     required: true;
-    // },
-    // comments: {
-    //     type: [String],
-    //     required: true;
-    // },
-    // banner: {
-    //     type: image,
-    //     required: false;
-    // },
     description: {
         type: String,
-        required: false;
+        required: false
+    },
+    likes: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        }],
+        default: [],
+        required: false
+    },
+    watchers: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        }],
+        default: [],
+        required: false
+    },
+    comments: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "Comment"
+        }],
+        default: [],
+        required: false
+    },
+    banner: {
+        type: String,
+        required: false
+    },
+    subCollections: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "SubCollection"
+        }],
+        required: false
+    },
+    maxSubCollections: {
+        type: Number,
+        default: 8,
+        required: false
+    },
+    products: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: "Product"
+        }],
+        default: [],
+        required: false
     },
     maxProducts: {
         type: Number,
-        required: true;
+        default: 80,
+        required: false
     },
-    // subCollections: {
-    //     type: [subCollection],
-    //     required: true;
-    // },
-    // products: {
-    //     type: [Product],
-    //     required: true;
-    // },
 }, { timestamps: true });
 
-mongoose.model("Collection", collectionSchema);
+const Collection = mongoose.model("Collection", collectionSchema);
 
-mongoose.exports = Collection;
+module.exports = Collection;
