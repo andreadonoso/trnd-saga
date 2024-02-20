@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: 5,
+    height: '38px',
     backgroundColor: alpha(theme.palette.secondary.main, 0.06),
     '&:hover': {
       backgroundColor: alpha(theme.palette.secondary.main, 0.09),
@@ -30,7 +31,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     '& .MuiInputBase-input': {
       fontSize:"medium",
       fontWeight:"300",
-      padding: theme.spacing(1, 1, .7, 0),
+      padding: theme.spacing(1.1, 1, 0.7, 0),
       paddingLeft: `calc(1em + ${theme.spacing(3)})`,
       transition: theme.transitions.create('width'),
       width: '100',
