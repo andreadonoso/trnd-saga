@@ -5,9 +5,9 @@ import { useTheme } from '@mui/material/styles';
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: 5,
-    backgroundColor: alpha(theme.palette.secondary.main, 0.05),
+    backgroundColor: alpha(theme.palette.secondary.main, 0.06),
     '&:hover': {
-      backgroundColor: alpha(theme.palette.secondary.main, 0.07),
+      backgroundColor: alpha(theme.palette.secondary.main, 0.09),
     },
     width: '100%',
     [theme.breakpoints.up('sm')]: {
@@ -27,7 +27,6 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 }));
   
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'primary',
     '& .MuiInputBase-input': {
       fontSize:"medium",
       fontWeight:"300",

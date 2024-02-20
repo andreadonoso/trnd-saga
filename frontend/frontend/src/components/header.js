@@ -15,6 +15,7 @@ import TagIcon from '@mui/icons-material/Tag';
 
 const Header = () => {
     const [state, setState] = useState(false);
+    
     const theme = useTheme();
     const isBiggerScreenUp = useMediaQuery(theme.breakpoints.up('sm'));
     const isSmallScreenDowm = useMediaQuery(theme.breakpoints.down('sm'));
@@ -28,7 +29,7 @@ const Header = () => {
     }, [isBiggerScreenUp])
 
     return ( 
-      <AppBar position="static">
+      <AppBar position="sticky">
         <Toolbar sx={{ display:"flex", justifyContent: isBiggerScreenUp ? "center" : "space-between", alignItems: isBiggerScreenUp ? "end" : "center", }}>
             <Link to="/" style={{ textDecoration: 'none' }}> 
               <Typography
@@ -55,7 +56,7 @@ const Header = () => {
                 transitionDuration={500}
               >
                 <IconButton onClick={ toggleDrawer } sx={{justifyContent: "end", alignItems: "start",}}>
-                  <CloseOutlinedIcon sx={{fontSize:"5px"}}/>
+                  <CloseOutlinedIcon/>
                 </IconButton>
                 <Link to="/feed" onClick={ toggleDrawer } style={{ textDecoration: 'none' }}>
                   <IconButton aria-label="feed">
