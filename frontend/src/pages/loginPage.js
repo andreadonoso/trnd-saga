@@ -74,7 +74,7 @@ const LoginPage = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 1, mb: 1.5 }}
+              sx={{ mt: 1.1, mb: 1.5 }}
             >
               Log In
             </Button>

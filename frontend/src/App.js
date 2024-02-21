@@ -142,7 +142,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
       defaultProps: {
         color: "secondary",
         variant: "filled",
-        size: "small",
+        size: "large",
         hiddenLabel: true,
         InputProps: { disableUnderline: true, },
         InputLabelProps: { size: "small"},
@@ -154,7 +154,8 @@ const getDesignTokens = (mode: PaletteMode) => ({
           borderRadius: 5,
           textTransform: 'none',
           fontWeight: 700,
-          fontSize: "small"
+          fontSize: "small",
+          padding: '15px 30px',
         },
       },
       defaultProps: {
@@ -213,10 +214,10 @@ function App() {
   const colorMode = React.useContext(ColorModeContext);
   return (
       <BrowserRouter>
-        <IconButton onClick={colorMode.toggleColorMode} >
+        {/* <IconButton onClick={colorMode.toggleColorMode} >
             {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-        </IconButton>
-        <Header />
+        </IconButton> */}
+        {/* <Header /> */}
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route exact path="/" element={<ExplorePage />} />
