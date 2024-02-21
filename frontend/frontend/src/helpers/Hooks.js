@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function getWindowDimensions() {
     const { innerHeight: height } = window;
@@ -7,6 +8,7 @@ function getWindowDimensions() {
 
 export function useWindowDimensions() {
     const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+    const location = useLocation();
 
     useEffect(() => {
       function handleResize() {
@@ -14,9 +16,8 @@ export function useWindowDimensions() {
       }
 
       window.addEventListener('resize', handleResize);
-    
       return () => window.removeEventListener('resize', handleResize);
-    }, [])
+    }, [location])
 
     return windowDimensions;
 }
