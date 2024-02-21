@@ -26,7 +26,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
             main: "#000000"
           },
           secondary: {
-            main: "rgb(0,0,0,0.2)",
+            main: "rgb(100,100,100,0.6)",
           },
           background: {
             default: "#FFFFFF",
@@ -43,7 +43,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
             main: "#FFFFFF",
           },
           secondary: {
-            main: "rgb(255,255,255,0.2)",
+            main: "rgb(255,255,255,0.5)",
           },
           background: {
             default: "#000000",
@@ -86,7 +86,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
           WebkitBackdropFilter: 'saturate(150%) blur(20px)',
           backdropFilter: 'saturate(150%) blur(20px)',
           boxShadow: 'none', 
-          color: 'transparent'
         }
       },
       defaultProps: {
@@ -126,35 +125,42 @@ const getDesignTokens = (mode: PaletteMode) => ({
     MuiTextField: {
       styleOverrides: {
         root: {
-          size: "small",
-          '& .MuiInput-root': {
-            borderRadius: 5,
-            color: "secondary"
+          '& .MuiInputBase-root': {
+            backgroundColor: "primary",
+            borderRadius: 5
           },
-          '& .MuiInput-root:hover': {
-            backgroundColor: alpha("rgb(0,0,0,0.2)", 0.07),
+          '& .MuiInputBase-input::placeholder': {
+            fontSize:"medium",
+            fontWeight:"300",
           },
-          // backgroundColor: alpha(theme.palette.secondary.main, 0.06),
-          // '&:hover': {
-          //   backgroundColor: alpha(theme.palette.secondary.main, 0.09),
-          // },
+          '& .MuiInputBase-input': {
+            fontSize:"medium",
+            fontWeight:"300",
+          },
         },
       },
       defaultProps: {
+        color: "secondary",
         variant: "filled",
-        size: "normal",
-        InputProps: { disableUnderline: true },
-        // InputLabelProps: { shrink: false },
+        size: "small",
+        hiddenLabel: true,
+        InputProps: { disableUnderline: true, },
+        InputLabelProps: { size: "small"},
       },
     },
     MuiButton:{
       styleOverrides: {
         root:{
           borderRadius: 5,
+          textTransform: 'none',
+          fontWeight: 700,
+          fontSize: "small"
         },
       },
       defaultProps: {
         disableRipple: true,
+        disableElevation: true,
+        size: "large",
       },
     },
     MuiIconButton: {
@@ -191,7 +197,13 @@ const getDesignTokens = (mode: PaletteMode) => ({
       color: mode === 'light' ? '#000000' : '#ffffff'
     },
     body2: {
-      color: mode === 'light' ? '#000000' : '#ffffff'
+      color: mode === 'light' ? '#000000' : '#ffffff',
+      fontWeight:"300",
+      fontSize:"medium",
+    },
+    subtitle: {
+      color: mode === 'light' ? '#000000' : '#ffffff',
+      fontWeight: 700
     },
   },
 });
@@ -201,7 +213,7 @@ function App() {
   const colorMode = React.useContext(ColorModeContext);
   return (
       <BrowserRouter>
-        <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} >
+        <IconButton onClick={colorMode.toggleColorMode} >
             {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
         <Header />
