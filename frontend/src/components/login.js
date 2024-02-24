@@ -41,7 +41,7 @@ const LoginPage = ({ handleClick }) => {
       </Button>
       <Grid container>
         <Grid item xs>
-          <Link onClick={()=>{handleClick('Forgot Password')}} variant="body2" underline="hover" color="secondary">
+          <Link onClick={()=>{handleClick('Reset Password')}} variant="body2" underline="hover" color="secondary">
             {"Forgot password?"}
           </Link>
         </Grid>

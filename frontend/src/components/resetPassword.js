@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, TextField, Box, Grid, Link } from '@mui/material';
 
-const ForgotPasswordPage = ({ handleClick }) => {
+const ResetPassword = ({ handleClick }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -40,4 +40,4 @@ const ForgotPasswordPage = ({ handleClick }) => {
      );
 }
  
-export default ForgotPasswordPage;
+export default ResetPassword;

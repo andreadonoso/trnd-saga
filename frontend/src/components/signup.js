@@ -30,15 +30,6 @@ const SignupPage = ({ handleClick }) => {
           id="password"
           autoComplete="current-password"
         />
-        <TextField
-          fullWidth
-          name="password"
-          placeholder="Confirm password"
-          inputProps={{ 'aria-label': 'password' }}
-          type="password"
-          id="password"
-          autoComplete="current-password"
-        />
         <Button
           type="submit"
           fullWidth

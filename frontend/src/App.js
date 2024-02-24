@@ -16,25 +16,6 @@ import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body1" underline="hover" color="secondary" align="center" {...props}>
-      {'©'}{' '}
-      {new Date().getFullYear()}
-    </Typography>
-  );
-}
-function About(props) {
-  return (
-    <Typography variant="body1" underline="hover" color="secondary" align="center">
-      {'About '}
-      <Link color="inherit" href="https://mui.com/">
-        trnds
-      </Link>{' '}
-    </Typography>
-  );
-}
-
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 const getDesignTokens = (mode: PaletteMode) => ({
   palette: {
@@ -203,6 +184,13 @@ const getDesignTokens = (mode: PaletteMode) => ({
         disableRipple: true,
       },
     },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+            cursor: 'pointer'
+        }
+      }
+    }
   },
   typography: {
     p: {
@@ -245,19 +233,7 @@ function App() {
           <Route path="/wishlist" element={<WishListPage />} />
           <Route path="/account" element={<AccountPage />} />
         </Routes>
-        <Box
-        sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mr: 1,
-            ml: 1
-        }}>
-          <About/>
-          <Copyright/>
-        </Box>
-
+        
         <IconButton onClick={colorMode.toggleColorMode} >
             {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
