@@ -12,25 +12,8 @@ import trndsWhite from '../assets/trndsWhite.png';
 import Login from "../components/login"
 import Signup from "../components/signup"
 import ResetPassword from "../components/resetPassword"
-
-function Copyright(props) {
-    return (
-      <Typography variant="body1" underline="hover" color="secondary" align="center" {...props}>
-        {'©'}{' '}
-        {new Date().getFullYear()}
-      </Typography>
-    );
-  }
-  function About(props) {
-    return (
-      <Typography variant="body1" underline="hover" color="secondary" align="center">
-        {'About '}
-        <Link color="inherit" href="https://mui.com/" >
-          trnds
-        </Link>
-      </Typography>
-    );
-  }
+import Copyright from "../components/copyright";
+import About from "../components/about";
 
 const LandingPage = () => {
     const theme = useTheme();
