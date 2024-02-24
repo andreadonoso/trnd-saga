@@ -10,8 +10,8 @@ import ExplorePage from "./pages/explorePage"
 import WishListPage from "./pages/wishListPage"
 import AccountPage from "./pages/accountPage"
 
-
 // DELETE?
+import { useEffect } from "react";
 import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -227,7 +227,8 @@ const getDesignTokens = (mode: PaletteMode) => ({
     },
     subtitle: {
       color: mode === 'light' ? '#000000' : '#ffffff',
-      fontWeight: 700
+      fontWeight: 700,
+      fontSize:"medium",
     },
   },
 });
@@ -238,7 +239,7 @@ function App() {
   return (
       <BrowserRouter>
         <Routes>
-          <Route exact path="/" element={<LandingPage />} />
+          <Route exact path="/" element={<LandingPage/>} />
           <Route exact="/explore" element={<ExplorePage />} />
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/wishlist" element={<WishListPage />} />
@@ -264,8 +265,14 @@ function App() {
   );
 }
 
+
+
 export default function ToggleColorMode() {
-  const [mode, setMode] = React.useState('light');
+  const [mode, setMode] = React.useState(() => {
+    const storedMode = localStorage.getItem('mode');
+    return storedMode || 'light';
+  });
+
   const colorMode = React.useMemo(() => ({
       toggleColorMode: () => {
         setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
@@ -273,6 +280,10 @@ export default function ToggleColorMode() {
     }),
     [],
   );
+
+  useEffect(() => {
+    localStorage.setItem('mode', mode);
+}, [mode]);
 
   const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
