@@ -16,7 +16,7 @@ const LoginPage = ({ handleClick }) => {
       <TextField
         fullWidth
         id="username"
-        placeholder= "Username, phone or email"
+        placeholder= "Username or email"
         inputProps={{ 'aria-label': 'username' }}
         name="username"
         autoComplete="username"

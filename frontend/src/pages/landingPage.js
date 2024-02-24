@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react'
 import { useTheme } from "@mui/material/styles";
-import { Container, CssBaseline, Box, Typography, Fade, Link } from '@mui/material';
+import { Container, CssBaseline, Box, Typography, Fade } from '@mui/material';
 import { useWindowDimensions } from "../helpers/hooks";
 
 import logoBlack from '../assets/logoBlack.png';
@@ -60,7 +60,7 @@ const LandingPage = () => {
                 sx={{
                     ml: 3,
                     mr: 3,
-                    mt: 5,
+                    mt: 10,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -71,7 +71,7 @@ const LandingPage = () => {
                     <Fade in={checked} timeout={500}>
                         <Box
                         sx={{
-                            height:'300px',
+                            minHeight:'380px',
                         }}
                         >
                             <Box
