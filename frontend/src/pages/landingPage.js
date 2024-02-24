@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react'
 import { useTheme } from "@mui/material/styles";
 import { Container, CssBaseline, Box, Typography, Fade, Link } from '@mui/material';
-import { useWindowDimensions } from "../helpers/Hooks";
+import { useWindowDimensions } from "../helpers/hooks";
 
 import logoBlack from '../assets/logoBlack.png';
 import logoWhite from '../assets/logoWhite.png';
@@ -89,7 +89,6 @@ const LandingPage = () => {
                         <Box
                         sx={{
                             height:'300px',
-                            // backgroundColor: 'red'
                         }}
                         >
                             <Box
