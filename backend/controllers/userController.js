@@ -1,5 +1,9 @@
+require('dotenv').config();
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const asyncHandler = require("express-async-handler");
 
 // Get all users
 const getUsers = async (req, res) => {
@@ -8,64 +12,148 @@ const getUsers = async (req, res) => {
 }
 
 // Get a single user
-const getUser = async (req, res) => {
-    const { id } = req.params;
+// const getUser = async (req, res) => {
+//     const { id } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({error: "The user does not exist."});
-    }
+//     if(!mongoose.Types.ObjectId.isValid(id)) {
+//         return res.status(404).json({error: "The user does not exist."});
+//     }
 
-    const user = await User.findById(id);
+//     const user = await User.findById(id);
 
-    if(!user) {
-        return res.status(404).json({error: "The user does not exist."});
-    }
+//     if(!user) {
+//         return res.status(404).json({error: "The user does not exist."});
+//     }
 
-    res.status(200).json(user);
-}
+//     res.status(200).json(user);
+// }
 
-// Create a user
-const createUser = async (req, res) => {
-    const { 
-        username,
-        password,
-        email,
-        age,
-        profile,
-        bio,
-        publicCollections,
-        privateCollections,
-        following,
-        followers,
-        wishlist,
-        instagram,
-        youtube,
-        tiktok,
-        x
-    } = req.body;
-
+// @desc    Register a user
+// @route   POST /api/users/
+// @access  Public
+const registerUser = asyncHandler(async (req, res) => {
     try {
-        const user = await User.create({ 
-            username,
+
+        const { 
             password,
             email,
-            age,
-            profile,
-            bio,
-            publicCollections,
-            privateCollections,
-            following,
-            followers,
-            wishlist,
-            instagram,
-            youtube,
-            tiktok,
-            x
+        } = req.body;
+
+        // Check all fields
+        if(!email || !password)
+        {
+            res.status(400);
+            throw new Error('Please enter all fields');
+        }
+
+        // Check if user already exists
+        const userExists = await (User.findOne({email}));
+        if(userExists) {
+            res.status(400);
+            throw new Error('User already exists');
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create a random username and check that it is unique
+        let username = generateRandomUsername();
+
+        let usernameExists = await (User.findOne({username}));
+        while(usernameExists)
+        {
+            username = generateRandomUsername();
+            usernameExists = await (User.findOne({username}));
+        }
+ 
+        // Create user
+        const user = await User.create({ 
+            username,
+            password: hashedPassword,
+            email,
         });
-        res.status(200).json(user);
+
+        if(user) {
+            res.status(201).json({
+                _id: user.id,
+                token: generateToken(user._id),
+            });       
+        } else {
+            res.status(400);
+            throw new Error('Invalid user data');
+        }
     } catch (error) {
         res.status(400).json({error: error.message});
     }
+})
+
+// Random username generator
+function generateRandomUsername() {
+    let username = 'user';
+    for(let i=0; i<12; i++)
+    {
+        username += Math.floor(Math.random()*10);
+    }
+    
+    return username;
+}
+
+// @desc    Log in a user
+// @route   POST /api/users/login
+// @access  Public
+const loginUser = asyncHandler(async (req, res) => {
+    const { 
+        username,
+        email, 
+        password 
+    } = req.body;
+
+    if ((email && username || !email && ! username) || !password) {
+        res.status(400);
+        throw new Error('Please enter all fields');
+    }
+
+    // Look up user and check if it exists
+    const user = (email && !username) ? await User.findOne({ email }) : await User.findOne({ username });
+    if (!user) {
+        res.status(400);
+        throw new Error('Credential not found');
+    }
+
+    // Log user in
+    if (user && (await bcrypt.compare(password, user.password))) {
+        // const accessToken = jwt.sign({credential: (email && !username) ? email : username }, process.env.ACCESS_TOKEN_SECRET);
+        res.status(201).json({
+            message: 'User logged in!',
+            user: {
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                token: generateToken(user._id),
+            },
+            // accessToken: accessToken
+        });
+    } else {
+        res.status(400);
+        throw new Error('Invalid credentials');
+    }
+});
+
+// @desc    Get logged-in user
+// @route   Get /api/users/login
+// @access  Private
+const getMe = asyncHandler(async (req, res) => {
+    const { _id, email } = await User.findById(req.user.id);
+    res.status(200).json({ 
+        id: _id, 
+        email: email
+    });
+});
+
+// Generate JWT
+const generateToken = (id) => {
+    return jwt.sign({id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
 }
 
 // Update a user
@@ -106,8 +194,10 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     getUsers,
-    getUser,
-    createUser,
+    // getUser,
+    registerUser,
+    loginUser,
+    getMe,
     updateUser,
     deleteUser
 };

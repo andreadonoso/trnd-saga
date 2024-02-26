@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
+
 const {
     getUsers,
-    getUser,
-    createUser,
+    // getUser,
+    registerUser,
+    loginUser,
+    getMe,
     updateUser,
     deleteUser
 } = require("../controllers/userController");
@@ -12,10 +16,16 @@ const {
 router.get('/', getUsers);
 
 // Get a single user
-router.get('/:id', getUser);
+// router.get('/:id', getUser);
 
-// Create a user
-router.post('/', createUser);
+// Register a user
+router.post('/', registerUser);
+
+// Log in a user
+router.post('/login', loginUser);
+
+// Get Me
+router.get('/me', protect, getMe);
 
 // Update a user
 router.patch('/:id', updateUser);
