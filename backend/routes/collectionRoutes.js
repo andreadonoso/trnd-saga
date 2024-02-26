@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
+
 const { 
     getCollections,
     getCollection,
@@ -9,18 +11,18 @@ const {
 } = require("../controllers/collectionController");
 
 // Get all collections
-router.get('/', getCollections);
+router.get('/', protect, getCollections);
 
 // Get a single collection
-router.get('/:id', getCollection);
+router.get('/:id', protect, getCollection);
 
 // Create a collection
-router.post('/', createCollection);
+router.post('/', protect, createCollection);
 
 // Update a collection
-router.patch('/:id', updateCollection);
+router.patch('/:id', protect, updateCollection);
 
 // Delete a collection
-router.delete('/:id', deleteCollection);
+router.delete('/:id', protect, deleteCollection);
 
 module.exports = router;
