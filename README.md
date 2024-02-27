@@ -1,3 +1,4 @@
 # trnds
 Explore, discover, and express your personal style via collections of online products, trends, and recommendations
-- MERN stack
+- Stack: MERN
+- Auth: JWT
