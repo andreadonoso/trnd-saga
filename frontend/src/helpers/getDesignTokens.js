@@ -141,6 +141,9 @@ const getDesignTokens = (mode: PaletteMode) => ({
             fontWeight: 600,
             fontSize: "medium",
             padding: '15px 30px',
+            '&:hover': {
+              backgroundColor:  alpha( mode === 'light' ? '#000000' : '#ffffff', 0.85),
+            },
           },
         },
         defaultProps: {

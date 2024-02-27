@@ -19,7 +19,7 @@ router.get('/', getUsers);
 // router.get('/:id', getUser);
 
 // Register a user
-router.post('/', registerUser);
+router.post('/register', registerUser);
 
 // Log in a user
 router.post('/login', loginUser);

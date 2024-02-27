@@ -1,46 +1,83 @@
 import * as React from 'react';
+import axios from 'axios';
 import { Button, TextField, Box, Link, Grid } from '@mui/material';
+import { useForm } from "react-hook-form"
+import { useNavigate } from 'react-router-dom';
 
-const SignupPage = ({ handleClick }) => {
-  const handleSubmit = (event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      console.log({
-      username: data.get('username'),
-      password: data.get('password'),
+const Signup = ({ handleClick }) => {
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      isLoggedIn: false
+    }
+  });
+
+  const onSubmit = (data) => {
+    try {
+      axios.post("/api/users/register", {
+          email: data.email,
+          password: data.password,
+        })
+        .then((res) => {
+            if (res.status === 201) 
+            {
+              localStorage.setItem("token", JSON.stringify(res.data.user.token));
+              data.isLoggedIn = true;
+              console.log('Registration successful:', res.data);
+              if (data.isLoggedIn) 
+              {
+                navigate('/account'); 
+              }
+            }
+        })
+        .catch((err) => {
+            console.error('Error registering user:', err);
       });
+    } catch (error) {
+      console.error('There was an error:', error);
+    }
   };
-    
+
   return ( 
-      <Box component="form" onSubmit={handleSubmit} noValidate >
+      <form onSubmit={handleSubmit((data) => onSubmit(data))}>
         <TextField
           fullWidth
-          id="username"
+          id="email"
           placeholder= "Email"
-          inputProps={{ 'aria-label': 'username' }}
-          name="username"
-          autoComplete="username"
+          inputProps={{ 'aria-label': 'email' }}
+          name="email"
+          autoComplete="email"
+          {...register("email", {required: true})}
         />
-        <TextField
+        <TextField name="password" type="password" id="password"
           fullWidth
-          name="password"
           placeholder="Password"
           inputProps={{ 'aria-label': 'password' }}
-          type="password"
-          id="password"
           autoComplete="current-password"
+          {...register("password", {required: true, minLength: 8})}
         />
-        <TextField
+        <TextField name="confirmPassword" type="password" id="confirmPassword"
           fullWidth
-          name="confirmPassword"
           placeholder="Confirm Password"
           inputProps={{ 'aria-label': 'password' }}
-          type="password"
-          id="password"
           autoComplete="current-password"
+          {...register("confirmPassword", {
+            required: true, 
+            minLength: {
+              value: 8,
+              message: "da min length is 8"
+            },
+          })}
         />
-        <Button
-          type="submit"
+        <Button type="submit"
           fullWidth
           variant="contained"
           sx={{ mt: 1.2, mb: 1.5 }}
@@ -54,8 +91,8 @@ const SignupPage = ({ handleClick }) => {
             </Link>
           </Grid>
         </Grid>
-      </Box>
+      </form>
      );
 }
  
-export default SignupPage;
+export default Signup;

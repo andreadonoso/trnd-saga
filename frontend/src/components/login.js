@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Button, TextField, Link, Grid, Box, } from '@mui/material';
 
-const LoginPage = ({ handleClick }) => {
+const Login = ({ handleClick }) => {
   const handleSubmit = (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
       console.log({
-      username: data.get('username'),
-      password: data.get('password'),
+        username: data.get('username'),
+        password: data.get('password'),
       });
   };
 
@@ -15,7 +15,7 @@ const LoginPage = ({ handleClick }) => {
     <Box component="form" onSubmit={handleSubmit} noValidate >
       <TextField
         fullWidth
-        id="username"
+        id="credential"
         placeholder= "Username or email"
         inputProps={{ 'aria-label': 'username' }}
         name="username"
@@ -55,4 +55,4 @@ const LoginPage = ({ handleClick }) => {
   );
 }
  
-export default LoginPage;
+export default Login;
