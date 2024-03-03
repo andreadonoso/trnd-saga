@@ -9,9 +9,9 @@ import logoWhite from '../assets/logoWhite.png';
 import trndsBlack from '../assets/trndsBlack.png';
 import trndsWhite from '../assets/trndsWhite.png';
 
-import Login from "../components/login"
-import Signup from "../components/signup"
-import ResetPassword from "../components/resetPassword"
+import Login from "../components/auth/login"
+import Signup from "../components/auth/signup"
+import ResetPassword from "../components/auth/resetPassword"
 import Copyright from "../components/copyright";
 import About from "../components/about";
 

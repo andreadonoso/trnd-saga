@@ -2,6 +2,7 @@ import * as React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles"
+import { ToastContainer, Slide } from 'react-toastify';
 
 import Header from "./components/header"
 import LandingPage from "./pages/landingPage"
@@ -13,9 +14,22 @@ import getDesignTokens from './helpers/getDesignTokens';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
+
 function App() {
   const colorMode = React.useContext(ColorModeContext);
   return (
+    <>
+      <ToastContainer 
+        position="top-center"
+        autoClose={7000}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        theme={localStorage.getItem('mode')}
+        transition={Slide}
+      />
       <BrowserRouter>
         <Header/>
         <Routes>
@@ -27,11 +41,12 @@ function App() {
           <Route path="*" element={<h1>404</h1>}></Route>
         </Routes>
       </BrowserRouter>
+    </>
   );
 }
 
 export default function ToggleColorMode() {
-  const [mode, setMode] = React.useState(() => {
+    const [mode, setMode] = React.useState(() => {
     const storedMode = localStorage.getItem('mode');
     return storedMode || 'light';
   });
@@ -53,7 +68,7 @@ export default function ToggleColorMode() {
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
-        <App />
+        <App/>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

@@ -33,13 +33,9 @@ const getUsers = async (req, res) => {
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        const { 
-            password,
-            email,
-        } = req.body;
-
-        // Check all fields
+        // Check all fields exist
         if(!email || !password)
         {
             res.status(400);
@@ -49,8 +45,8 @@ const registerUser = asyncHandler(async (req, res) => {
         // Check if user already exists
         const userExists = await (User.findOne({email}));
         if(userExists) {
-            res.status(400);
-            throw new Error('User already exists');
+            res.status(400).json({message: 'The user already exists'});
+            throw new Error('The user already exists');
         }
 
         // Hash password
@@ -59,7 +55,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
         // Create a random username and check that it is unique
         let username = generateRandomUsername();
-
         let usernameExists = await (User.findOne({username}));
         while(usernameExists)
         {
@@ -67,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
             usernameExists = await (User.findOne({username}));
         }
  
-        // Create user
+        // Create user and check for errors
         const user = await User.create({ 
             username,
             password: hashedPassword,
@@ -75,12 +70,10 @@ const registerUser = asyncHandler(async (req, res) => {
         });
 
         if(user) {
-            res.status(201).json({
-                _id: user.id,
-                token: generateToken(user._id),
-            });       
-        } else {
-            res.status(400);
+            res.status(201).json({ message: 'User signed up!'});
+        } 
+        else {
+            res.status(400).json({message: 'Invalid user data'});
             throw new Error('Invalid user data');
         }
     } catch (error) {
@@ -103,40 +96,28 @@ function generateRandomUsername() {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-    const { 
-        username,
-        email, 
-        password 
-    } = req.body;
+    const { credential,password } = req.body;
 
-    if ((email && username || !email && ! username) || !password) {
-        res.status(400);
+    // Check all fields 
+    if (!credential || !password) {
+        res.status(400).json({message: 'Please enter all fields'});
         throw new Error('Please enter all fields');
     }
 
     // Look up user and check if it exists
-    const user = (email && !username) ? await User.findOne({ email }) : await User.findOne({ username });
+    const user = (credential.includes('@')) ? await User.findOne({ email: credential }) : await User.findOne({ username: credential });
     if (!user) {
-        res.status(400);
-        throw new Error('Credential not found');
+        res.status(400).json({message: 'The user does not exist'});
+        throw new Error('The user does not exist');
     }
 
     // Log user in
     if (user && (await bcrypt.compare(password, user.password))) {
-        // const accessToken = jwt.sign({credential: (email && !username) ? email : username }, process.env.ACCESS_TOKEN_SECRET);
-        res.status(201).json({
-            message: 'User logged in!',
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                token: generateToken(user._id),
-            },
-            // accessToken: accessToken
-        });
-    } else {
-        res.status(400);
-        throw new Error('Invalid credentials');
+        res.status(201).json({ message: 'User logged in!'});
+    } 
+    else {
+        res.status(400).json({message: 'Invalid password'});
+        throw new Error('Invalid password');
     }
 });
 
