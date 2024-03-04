@@ -31,6 +31,9 @@ function App({ mode }) {
         // theme={mode.toString()}
         transition={Slide}
         limit={1}
+        toastStyle={{
+          backgroundColor: 'rgba(173,12,0,0.85)', // Change this to the desired color
+        }}
       />
       <BrowserRouter>
         <Header/>
