@@ -24,7 +24,12 @@ const Login = ({ handleClick }) => {
     if(isError) toast.error(message);
 
     // If success or the user is already logged in
-    if(isSuccess || user) navigate('/account');
+    if(isSuccess || user) {
+      toast.dismiss();
+      navigate('/account');
+    };
+    toast.clearWaitingQueue();
+
 
     dispatch(reset());
   }, [user, isError, isSuccess, isLoading, message, navigate, dispatch])
@@ -41,6 +46,7 @@ const Login = ({ handleClick }) => {
     event.preventDefault()
     if(!credential || !password) {
       toast.error("Please enter all fields");
+      toast.clearWaitingQueue();
     }
     else {
       const userData = { credential, password };

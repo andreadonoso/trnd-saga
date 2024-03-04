@@ -15,20 +15,22 @@ import getDesignTokens from './helpers/getDesignTokens';
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
 
-function App() {
+function App({ mode }) {
   const colorMode = React.useContext(ColorModeContext);
   return (
     <>
       <ToastContainer 
         position="top-center"
-        autoClose={7000}
+        autoClose={5000}
         newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
-        theme={localStorage.getItem('mode')}
+        theme='colored'
+        // theme={mode.toString()}
         transition={Slide}
+        limit={1}
       />
       <BrowserRouter>
         <Header/>
@@ -68,12 +70,8 @@ export default function ToggleColorMode() {
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
-        <App/>
+        <App mode={mode}/>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
 }
-
-
-
-

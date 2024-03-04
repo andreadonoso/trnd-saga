@@ -74,7 +74,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
         },
         defaultProps: {
           color: "background",
-          hideBackdrop: true,
           elevation: 0
         }
       },

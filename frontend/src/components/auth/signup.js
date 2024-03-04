@@ -22,9 +22,13 @@ const Signup = ({ handleClick }) => {
 
   useEffect(() => {
     if(isError) toast.error(message);
+    toast.clearWaitingQueue();
 
     // If success or the user is already logged in
-    if(isSuccess || user) navigate('/account');
+    if(isSuccess || user) {
+      toast.dismiss();
+      navigate('/account');
+    }
 
     dispatch(reset());
   }, [user, isError, isSuccess, isLoading, message, navigate, dispatch])
@@ -44,11 +48,26 @@ const Signup = ({ handleClick }) => {
     const hasNumbers = /\d/;
     const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
     
-    if(!email || !password || !confirmPassword) toast.error("Please enter all fields");
-    else if(!emailRegex.test(email)) toast.error("Enter a valid email");
-    else if(password.length < 8) toast.error("Password must have 8 - 20 characters");
-    else if(!hasLetters.test(password) || !hasNumbers.test(password) || !hasSpecialChars.test(password)) toast.error("Password must have letters, numbers and special characters");
-    else if(password !== confirmPassword) toast.error("Passwords don't match");
+    if(!email || !password || !confirmPassword) {
+      toast.error("Please enter all fields");
+      toast.clearWaitingQueue();
+    }
+    else if(!emailRegex.test(email)) {
+      toast.error("Enter a valid email");
+      toast.clearWaitingQueue();
+    }
+    else if(password.length < 8) {
+      toast.error("Password must have 8 - 20 characters");
+      toast.clearWaitingQueue();
+    }
+    else if(!hasLetters.test(password) || !hasNumbers.test(password) || !hasSpecialChars.test(password)) {
+      toast.error("Password must have letters, numbers and special characters");
+      toast.clearWaitingQueue();
+    }
+    else if(password !== confirmPassword) {
+      toast.error("Passwords don't match");
+      toast.clearWaitingQueue();
+    }
     else {
       const userData = { email, password };
       dispatch(register(userData));
