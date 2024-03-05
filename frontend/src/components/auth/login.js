@@ -30,7 +30,6 @@ const Login = ({ handleClick }) => {
     };
     toast.clearWaitingQueue();
 
-
     dispatch(reset());
   }, [user, isError, isSuccess, isLoading, message, navigate, dispatch])
 
@@ -44,13 +43,21 @@ const Login = ({ handleClick }) => {
 
   const onSubmit = (event) => {
     event.preventDefault()
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+
     if(!credential || !password) {
       toast.error("Please enter all fields");
       toast.clearWaitingQueue();
     }
-    else {
-      const userData = { credential, password };
+    else if(emailRegex.test(credential.trim()) || usernameRegex.test(credential.trim())) {
+      const userData = { credential: credential.toLowerCase().trim(), password };
       dispatch(login(userData));
+    }
+    else {
+      toast.error("Invalid username or email");
+      toast.clearWaitingQueue();
     }
   }
 

@@ -29,10 +29,17 @@ const logout= () => {
     localStorage.removeItem('user');
 }
 
+// Send reset password email
+const sendResetPasswordEmail = async (userData) => {
+    const res = await axios.post(API_URL + "sendResetPasswordEmail", userData);
+    return res.data;
+}
+
 const authService = {
     register,
     login,
-    logout
+    logout,
+    sendResetPasswordEmail
 }
 
 export default authService;

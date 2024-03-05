@@ -4,33 +4,22 @@ const { protect } = require('../middleware/authMiddleware');
 
 const {
     getUsers,
-    // getUser,
+    getUser,
     registerUser,
     loginUser,
     getMe,
+    sendResetPasswordEmail,
     updateUser,
     deleteUser
 } = require("../controllers/userController");
 
-// Get all users
 router.get('/', getUsers);
-
-// Get a single user
-// router.get('/:id', getUser);
-
-// Register a user
+router.get('/:id', getUser);
 router.post('/register', registerUser);
-
-// Log in a user
 router.post('/login', loginUser);
-
-// Get Me
 router.get('/me', protect, getMe);
-
-// Update a user
+router.post('/sendResetPasswordEmail', sendResetPasswordEmail);
 router.patch('/:id', updateUser);
-
-// Delete a user
 router.delete('/:id', deleteUser);
 
 module.exports = router;

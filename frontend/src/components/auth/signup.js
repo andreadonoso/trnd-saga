@@ -52,7 +52,7 @@ const Signup = ({ handleClick }) => {
       toast.error("Please enter all fields");
       toast.clearWaitingQueue();
     }
-    else if(!emailRegex.test(email)) {
+    else if(!emailRegex.test(email.trim())) {
       toast.error("Enter a valid email");
       toast.clearWaitingQueue();
     }
@@ -69,7 +69,7 @@ const Signup = ({ handleClick }) => {
       toast.clearWaitingQueue();
     }
     else {
-      const userData = { email, password };
+      const userData = { email: email.toLowerCase().trim(), password };
       dispatch(register(userData));
     }
   }

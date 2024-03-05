@@ -5,28 +5,32 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 
-// Get all users
+// @desc    Get all users
+// @route   GET /api/users/
+// @access  Private
 const getUsers = async (req, res) => {
     const users = await User.find({}).sort({ createdAT: -1 });
     res.status(200).json(users);
 }
 
-// Get a single user
-// const getUser = async (req, res) => {
-//     const { id } = req.params;
+// @desc    Get a single user
+// @route   GET /api/users/:id
+// @access  Private
+const getUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-//     if(!mongoose.Types.ObjectId.isValid(id)) {
-//         return res.status(404).json({error: "The user does not exist."});
-//     }
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: "The user does not exist."});
+    }
 
-//     const user = await User.findById(id);
+    const user = await User.findById(id);
 
-//     if(!user) {
-//         return res.status(404).json({error: "The user does not exist."});
-//     }
+    if(!user) {
+        return res.status(404).json({error: "The user does not exist."});
+    }
 
-//     res.status(200).json(user);
-// }
+    res.status(200).json(user);
+})
 
 // @desc    Register a user
 // @route   POST /api/users/register
@@ -41,42 +45,45 @@ const registerUser = asyncHandler(async (req, res) => {
             res.status(400);
             throw new Error('Please enter all fields');
         }
-
-        // Check if user already exists
-        const userExists = await (User.findOne({email}));
-        if(userExists) {
-            res.status(400).json({message: 'The user already exists'});
-            throw new Error('The user already exists');
-        }
-
-        // Hash password
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create a random username and check that it is unique
-        let username = generateRandomUsername();
-        let usernameExists = await (User.findOne({username}));
-        while(usernameExists)
-        {
-            username = generateRandomUsername();
-            usernameExists = await (User.findOne({username}));
-        }
- 
-        // Create user and check for errors
-        const user = await User.create({ 
-            username,
-            password: hashedPassword,
-            email,
-        });
-
-        if(user) {
-            res.status(201).json({ message: 'User signed up!'});
-        } 
         else {
-            res.status(400).json({message: 'Invalid user data'});
-            throw new Error('Invalid user data');
+            // Check if user already exists
+            const userExists = await (User.findOne({email}));
+            if(userExists) {
+                res.status(400).json({message: 'The user already exists'});
+                throw new Error('The user already exists');
+            }
+            else {
+                // Hash password
+                const salt = await bcrypt.genSalt();
+                const hashedPassword = await bcrypt.hash(password, salt);
+
+                // Create a random username and check that it is unique
+                let username = generateRandomUsername();
+                let usernameExists = await (User.findOne({username}));
+                while(usernameExists)
+                {
+                    username = generateRandomUsername();
+                    usernameExists = await (User.findOne({username}));
+                }
+        
+                // Create user and check for errors
+                const user = await User.create({ 
+                    username,
+                    password: hashedPassword,
+                    email,
+                });
+
+                if(user) {
+                    res.status(201).json({ message: 'User signed up!'});
+                } 
+                else {
+                    res.status(400).json({message: 'Invalid user data'});
+                    throw new Error('Invalid user data');
+                }
+            }
         }
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(400).json({error: error.message});
     }
 })
@@ -96,28 +103,27 @@ function generateRandomUsername() {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-    const { credential,password } = req.body;
+    const { credential, password } = req.body;
 
     // Check all fields 
     if (!credential || !password) {
         res.status(400).json({message: 'Please enter all fields'});
         throw new Error('Please enter all fields');
     }
-
-    // Look up user and check if it exists
-    const user = (credential.includes('@')) ? await User.findOne({ email: credential }) : await User.findOne({ username: credential });
-    if (!user) {
-        res.status(400).json({message: 'The user does not exist'});
-        throw new Error('The user does not exist');
-    }
-
-    // Log user in
-    if (user && (await bcrypt.compare(password, user.password))) {
-        res.status(201).json({ message: 'User logged in!'});
-    } 
     else {
-        res.status(400).json({message: 'Invalid password'});
-        throw new Error('Invalid password');
+        // Look up user and check if it exists
+        const user = (credential.includes('@')) ? await User.findOne({ email: credential }) : await User.findOne({ username: credential });
+        if (!user) {
+            res.status(400).json({message: 'The user does not exist'});
+            throw new Error('The user does not exist');
+        } // Log user in
+        else if (user && (await bcrypt.compare(password, user.password))) {
+            res.status(201).json({ message: 'User logged in!'});
+        } 
+        else {
+            res.status(400).json({message: 'Invalid password'});
+            throw new Error('Invalid password');
+        }
     }
 });
 
@@ -137,7 +143,33 @@ const generateToken = (id) => {
     return jwt.sign({id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
 }
 
-// Update a user
+// @desc    Send reset password email
+// @route   GET /api/users/sendResetPasswordEmail
+// @access  Public
+const sendResetPasswordEmail = async (req, res) => {
+    const { credential } = req.body;
+
+    // Check all fields exist
+    if(!credential)
+    {
+        res.status(400).json({message: 'Please enter all fields'});
+    }
+    else {
+        // Look up user and check if it exists
+        const user = (credential.includes('@')) ? await User.findOne({ email: credential }) : await User.findOne({ username: credential });
+        if (!user) {
+            res.status(400).json({message: 'Username or email not found'});
+        }
+        else { 
+            // Send email
+            const email = user.email;
+            // EDIT ADD send email here
+            res.status(200).json({message: "Email sent!"});
+        }
+    }
+}
+
+// Update user
 const updateUser = async (req, res) => {
     const { id } = req.params;
 
@@ -175,10 +207,11 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     getUsers,
-    // getUser,
+    getUser,
     registerUser,
     loginUser,
     getMe,
+    sendResetPasswordEmail,
     updateUser,
     deleteUser
 };

@@ -21,7 +21,7 @@ function App({ mode }) {
     <>
       <ToastContainer 
         position="top-center"
-        autoClose={5000}
+        autoClose={4000}
         newestOnTop={false}
         closeOnClick
         rtl={false}
@@ -31,9 +31,9 @@ function App({ mode }) {
         // theme={mode.toString()}
         transition={Slide}
         limit={1}
-        toastStyle={{
-          backgroundColor: 'rgba(173,12,0,1)', // Change this to the desired color
-        }}
+        // toastStyle={{
+        //   backgroundColor: 'rgba(173,12,0,1)', 
+        // }}
       />
       <BrowserRouter>
         <Header/>
