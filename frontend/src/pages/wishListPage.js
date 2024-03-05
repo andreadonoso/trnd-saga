@@ -1,7 +1,5 @@
 const WishListPage = () => {
-    return ( 
-        <div>Wish List Page</div>
-     );
-}
- 
+	return <div>Wish List Page</div>;
+};
+
 export default WishListPage;
