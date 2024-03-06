@@ -129,7 +129,9 @@ const getMe = asyncHandler(async (req, res) => {
 
 // Generate JWT
 const generateToken = (id) => {
-	return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
+	return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
+		expiresIn: "1d",
+	});
 };
 
 // @desc    Send reset password email
@@ -151,8 +153,25 @@ const sendResetPasswordEmail = async (req, res) => {
 		} else {
 			// Send email
 			const email = user.email;
-			// EDIT ADD send email here
-			res.status(200).json({ message: "Email sent!" });
+			const sgMail = require("@sendgrid/mail");
+
+			sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+			const msg = {
+				to: email,
+				from: {
+					name: "trnds",
+					email: process.env.FROM_EMAIL,
+				},
+				templateId: process.env.TEMPLATE_ID,
+			};
+			sgMail
+				.send(msg)
+				.then(() => {
+					res.status(200).json({ message: "Email sent!" });
+				})
+				.catch((error) => {
+					res.status(400).json({ message: "Email failed to send" });
+				});
 		}
 	}
 };

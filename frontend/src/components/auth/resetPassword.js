@@ -83,7 +83,7 @@ const ResetPassword = ({ handleClick }) => {
 				variant="contained"
 				sx={{ mt: 1.2, mb: 1.5 }}
 			>
-				Reset Password
+				Send Email
 			</Button>
 			<Grid container justifyContent="center">
 				<Grid item>
