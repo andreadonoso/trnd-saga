@@ -4,3 +4,5 @@ Explore, discover, and express your personal style via collections of online pro
 - Auth: JWT Authentication
 - Global state management: React Redux
 - Recommendation system: Collaborative filtering, content-based filtering
+  
+  # This project is still in development and not ready for use
