@@ -53,7 +53,7 @@ export const logout = createAsyncThunk(
 	}
 );
 
-// Reset password
+// Forgot password
 export const sendResetPasswordEmail = createAsyncThunk(
 	"auth/sendResetPasswordEmail",
 	async (user, thunkAPI) => {
@@ -80,6 +80,7 @@ export const authSlice = createSlice({
 			state.isError = false;
 			state.isSuccess = false;
 			state.message = "";
+			state.email = "";
 		},
 	},
 	extraReducers: (builder) => {
@@ -114,19 +115,21 @@ export const authSlice = createSlice({
 			}) // LOGOUT
 			.addCase(logout.fulfilled, (state) => {
 				state.user = null;
-			}) // SEND REST PASSWORD EMAIL
+			}) // FORGOT PASSWORD
 			.addCase(sendResetPasswordEmail.pending, (state) => {
 				state.isLoading = true;
 			})
 			.addCase(sendResetPasswordEmail.fulfilled, (state, action) => {
 				state.isLoading = false;
 				state.isSuccess = true;
+				state.email = action.payload;
 			})
 			.addCase(sendResetPasswordEmail.rejected, (state, action) => {
 				state.isLoading = false;
 				state.isError = true;
 				state.message = action.payload;
 				state.user = null;
+				state.email = null;
 			});
 	},
 });

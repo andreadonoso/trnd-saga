@@ -153,6 +153,7 @@ const sendResetPasswordEmail = async (req, res) => {
 		} else {
 			// Send email
 			const email = user.email;
+			// const code =
 			const sgMail = require("@sendgrid/mail");
 
 			sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -167,7 +168,7 @@ const sendResetPasswordEmail = async (req, res) => {
 			sgMail
 				.send(msg)
 				.then(() => {
-					res.status(200).json({ message: "Email sent!" });
+					res.status(200).json(email);
 				})
 				.catch((error) => {
 					res.status(400).json({ message: "Email failed to send" });
@@ -175,6 +176,11 @@ const sendResetPasswordEmail = async (req, res) => {
 		}
 	}
 };
+
+// Verification code generator
+function generateVerificationCode() {
+	return Math.floor(100000 + Math.random() * 900000);
+}
 
 // Update user
 const updateUser = async (req, res) => {

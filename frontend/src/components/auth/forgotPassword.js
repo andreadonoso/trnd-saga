@@ -2,37 +2,44 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { login, reset } from "../../features/auth/authSlice.js";
+import {
+	sendResetPasswordEmail,
+	reset,
+} from "../../features/auth/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
 
-const Login = ({ handleClick }) => {
-	const { user, isLoading, isError, isSuccess, message } = useSelector(
+const ForgotPassword = ({ handleClick }) => {
+	const { email, isLoading, isError, isSuccess, message } = useSelector(
 		(state) => state.auth
 	);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
-	const [formData, setFormData] = useState({
-		credential: "",
-		password: "",
-	});
-
-	const { credential, password } = formData;
+	const [formData, setFormData] = useState({ credential: "" });
+	const { credential } = formData;
 
 	useEffect(() => {
 		if (isError) toast.error(message);
 
-		// If success or the user is already logged in
-		if (isSuccess || user) {
+		// If success
+		if (isSuccess) {
+			// console.log(email);
+			// const verifyEmail = email;
+
 			toast.dismiss();
-			navigate("/account");
+			setTimeout(() => {
+				localStorage.setItem("email", email);
+				handleClick("Email Verification");
+				toast.success("Email sent! Please check your inbox");
+			}, 400);
 		}
 		toast.clearWaitingQueue();
 
 		dispatch(reset());
-	}, [user, isError, isSuccess, isLoading, message, navigate, dispatch]);
+		// eslint-disable-next-line
+	}, [email, isError, isSuccess, isLoading, message, navigate, dispatch]);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -47,24 +54,20 @@ const Login = ({ handleClick }) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		const usernameRegex = /^[a-zA-Z0-9_.]+$/;
 
-		if (!credential || !password) {
+		if (!credential) {
 			toast.error("Please enter all fields");
 			toast.clearWaitingQueue();
 		} else if (
 			emailRegex.test(credential.trim()) ||
 			usernameRegex.test(credential.trim())
 		) {
-			const userData = {
-				credential: credential.toLowerCase().trim(),
-				password,
-			};
-			dispatch(login(userData));
+			const userData = { credential: credential.toLowerCase().trim() };
+			dispatch(sendResetPasswordEmail(userData));
 		} else {
 			toast.error("Invalid username or email");
 			toast.clearWaitingQueue();
 		}
 	};
-
 	return (
 		<form onSubmit={onSubmit} noValidate>
 			<TextField
@@ -74,20 +77,9 @@ const Login = ({ handleClick }) => {
 				fullWidth
 				placeholder="Username or email"
 				inputProps={{ "aria-label": "credential" }}
-				autoComplete="username"
+				autoComplete="email"
 				onChange={onChange}
 				value={credential}
-			/>
-			<TextField
-				name="password"
-				type="password"
-				id="password"
-				fullWidth
-				placeholder="Password"
-				inputProps={{ "aria-label": "password" }}
-				autoComplete="current-password"
-				onChange={onChange}
-				value={password}
 			/>
 			<Button
 				type="submit"
@@ -95,31 +87,19 @@ const Login = ({ handleClick }) => {
 				variant="contained"
 				sx={{ mt: 1.2, mb: 1.5 }}
 			>
-				Log In
+				Send Email
 			</Button>
-			<Grid container>
-				<Grid item xs>
-					<Link
-						onClick={() => {
-							handleClick("Forgot Password?");
-						}}
-						variant="body2"
-						underline="hover"
-						color="secondary"
-					>
-						{"Forgot password?"}
-					</Link>
-				</Grid>
+			<Grid container justifyContent="center">
 				<Grid item>
 					<Link
 						onClick={() => {
-							handleClick("Sign Up");
+							handleClick("Log In");
 						}}
 						variant="body2"
 						underline="hover"
 						color="secondary"
 					>
-						{"Create an account"}
+						{"Back to log in"}
 					</Link>
 				</Grid>
 			</Grid>
@@ -127,4 +107,4 @@ const Login = ({ handleClick }) => {
 	);
 };
 
-export default Login;
+export default ForgotPassword;

@@ -11,6 +11,8 @@ import trndsWhite from "../assets/trndsWhite.png";
 
 import Login from "../components/auth/login";
 import Signup from "../components/auth/signup";
+import ForgotPassword from "../components/auth/forgotPassword";
+import EmailVerification from "../components/auth/emailVerification";
 import ResetPassword from "../components/auth/resetPassword";
 import Copyright from "../components/copyright";
 import About from "../components/about";
@@ -20,7 +22,7 @@ const LandingPage = () => {
 	const height = useWindowDimensions();
 
 	const [title, setTitle] = useState("Log In");
-	const [checked, setChecked] = React.useState(true);
+	const [checked, setChecked] = useState(true);
 
 	const handleClick = (title) => {
 		setChecked((prev) => !prev);
@@ -101,6 +103,12 @@ const LandingPage = () => {
 							)}
 							{title === "Sign Up" && (
 								<Signup handleClick={handleClick} />
+							)}
+							{title === "Forgot Password?" && (
+								<ForgotPassword handleClick={handleClick} />
+							)}
+							{title === "Email Verification" && (
+								<EmailVerification handleClick={handleClick} />
 							)}
 							{title === "Reset Password" && (
 								<ResetPassword handleClick={handleClick} />
