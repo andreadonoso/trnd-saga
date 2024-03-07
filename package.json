@@ -2,7 +2,17 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "db.js",
+	"main": "server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node backend/server.js",
+		"server": "nodemon backend/server.js",
+		"client": "npm start --prefix frontend",
+		"dev": "concurrently \"npm run server\" \"npm run client\""
+	},
+	"keywords": [],
+	"author": "Andrea Donoso",
+	"license": "ISC",
 	"dependencies": {
 		"@sendgrid/mail": "^8.1.1",
 		"bcrypt": "^5.1.1",
@@ -14,16 +24,6 @@
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.1.1"
 	},
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node backend/server.js",
-		"server": "nodemon backend/server.js",
-		"client": "npm start --prefix frontend",
-		"dev": "concurrently \"npm run server\" \"npm run client\""
-	},
-	"keywords": [],
-	"author": "Andrea Donoso",
-	"license": "ISC",
 	"devDependencies": {
 		"concurrently": "^8.2.2",
 		"nodemon": "^3.1.0"
