@@ -12,6 +12,15 @@ const productRoutes = require("./routes/productRoutes");
 const URI = process.env.URI;
 const PORT = process.env.PORT || 4000;
 
+// Initialize Express App & Middleware
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+	console.log(req.path, req.method);
+	next();
+});
+
 // Connect to MongoDB
 mongoose
 	.connect(URI)
@@ -21,15 +30,6 @@ mongoose
 		console.log(`Listening on port ${PORT}`);
 	})
 	.catch((err) => console.log(err));
-
-// Initialize Express App & Middleware
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use((req, res, next) => {
-	console.log(req.path, req.method);
-	next();
-});
 
 // Routes
 app.use("/api/users", userRoutes);
