@@ -10,7 +10,7 @@ const collectionRoutes = require("./routes/collectionRoutes");
 const productRoutes = require("./routes/productRoutes");
 
 const URI = process.env.URI;
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
 mongoose
