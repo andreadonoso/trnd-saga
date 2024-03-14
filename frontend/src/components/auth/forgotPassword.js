@@ -2,10 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-	sendResetPasswordEmail,
-	reset,
-} from "../../features/auth/authSlice.js";
+import { sendEmail, reset } from "../../features/auth/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
@@ -62,7 +59,7 @@ const ForgotPassword = ({ handleClick }) => {
 			usernameRegex.test(credential.trim())
 		) {
 			const userData = { credential: credential.toLowerCase().trim() };
-			dispatch(sendResetPasswordEmail(userData));
+			dispatch(sendEmail(userData));
 		} else {
 			toast.error("Invalid username or email");
 			toast.clearWaitingQueue();

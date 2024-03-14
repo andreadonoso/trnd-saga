@@ -10,7 +10,7 @@ import trndsBlack from "../assets/trndsBlack.png";
 import trndsWhite from "../assets/trndsWhite.png";
 
 import Login from "../components/auth/login";
-import Signup from "../components/auth/signup";
+import Register from "../components/auth/register";
 import ForgotPassword from "../components/auth/forgotPassword";
 import EmailVerification from "../components/auth/emailVerification";
 import ResetPassword from "../components/auth/resetPassword";
@@ -22,13 +22,15 @@ const LandingPage = () => {
 	const height = useWindowDimensions();
 
 	const [title, setTitle] = useState("Log In");
+	const [credential, setCredential] = useState("");
 	const [checked, setChecked] = useState(true);
 
-	const handleClick = (title) => {
+	const handleClick = (title, credential) => {
 		setChecked((prev) => !prev);
 		setTimeout(() => {
 			setChecked((prev) => !prev);
 			setTitle(title);
+			if (credential) setCredential(credential);
 		}, 300);
 	};
 
@@ -102,13 +104,16 @@ const LandingPage = () => {
 								<Login handleClick={handleClick} />
 							)}
 							{title === "Sign Up" && (
-								<Signup handleClick={handleClick} />
+								<Register handleClick={handleClick} />
 							)}
 							{title === "Forgot Password?" && (
 								<ForgotPassword handleClick={handleClick} />
 							)}
 							{title === "Email Verification" && (
-								<EmailVerification handleClick={handleClick} />
+								<EmailVerification
+									handleClick={handleClick}
+									credential={credential}
+								/>
 							)}
 							{title === "Reset Password" && (
 								<ResetPassword handleClick={handleClick} />

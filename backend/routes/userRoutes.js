@@ -8,7 +8,8 @@ const {
 	registerUser,
 	loginUser,
 	getMe,
-	sendResetPasswordEmail,
+	sendEmail,
+	verifyEmail,
 	updateUser,
 	deleteUser,
 } = require("../controllers/userController");
@@ -18,7 +19,8 @@ router.get("/:id", getUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/me", protect, getMe);
-router.post("/sendResetPasswordEmail", sendResetPasswordEmail);
+router.post("/sendEmail", sendEmail);
+router.post("/verifyEmail", verifyEmail);
 router.patch("/:id", updateUser);
 router.delete("/:id", deleteUser);
 

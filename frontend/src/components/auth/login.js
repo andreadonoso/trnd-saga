@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { login, reset } from "../../features/auth/authSlice.js";
+import { login, reset, sendEmail } from "../../features/auth/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
@@ -14,25 +14,38 @@ const Login = ({ handleClick }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
+	useEffect(() => {
+		if (isError) toast.error(message);
+
+		// If success or the user is already logged in
+		if (isSuccess || localStorage.getItem("user")) {
+			toast.dismiss();
+			if (user.emailVerified) {
+				setTimeout(() => {
+					navigate("/account");
+				}, 400);
+			} else if (!user.emailVerified) {
+				const cleanCredential = credential.toLowerCase().trim();
+				const userData = { credential: cleanCredential };
+				setTimeout(() => {
+					dispatch(sendEmail(userData));
+					toast.success("Email sent! Please check your inbox");
+					handleClick("Email Verification", cleanCredential);
+				}, 400);
+			}
+		}
+		toast.clearWaitingQueue();
+
+		dispatch(reset());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user, isError, isSuccess, isLoading, message, navigate, dispatch]);
+
 	const [formData, setFormData] = useState({
 		credential: "",
 		password: "",
 	});
 
 	const { credential, password } = formData;
-
-	useEffect(() => {
-		if (isError) toast.error(message);
-
-		// If success or the user is already logged in
-		if (isSuccess || user) {
-			toast.dismiss();
-			navigate("/account");
-		}
-		toast.clearWaitingQueue();
-
-		dispatch(reset());
-	}, [user, isError, isSuccess, isLoading, message, navigate, dispatch]);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -46,16 +59,17 @@ const Login = ({ handleClick }) => {
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+		const cleanCredential = credential.toLowerCase().trim();
 
 		if (!credential || !password) {
 			toast.error("Please enter all fields");
 			toast.clearWaitingQueue();
 		} else if (
-			emailRegex.test(credential.trim()) ||
-			usernameRegex.test(credential.trim())
+			emailRegex.test(cleanCredential) ||
+			usernameRegex.test(cleanCredential)
 		) {
 			const userData = {
-				credential: credential.toLowerCase().trim(),
+				credential: cleanCredential,
 				password,
 			};
 			dispatch(login(userData));

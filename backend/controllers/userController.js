@@ -69,7 +69,9 @@ const registerUser = asyncHandler(async (req, res) => {
 			});
 
 			if (user) {
-				res.status(201).json({ message: "User signed up!" });
+				res.status(201).json({
+					message: "User registered successfully",
+				});
 			} else {
 				res.status(400).json({ message: "Invalid user data" });
 				throw new Error("Invalid user data");
@@ -108,7 +110,10 @@ const loginUser = asyncHandler(async (req, res) => {
 			throw new Error("The user does not exist");
 		} // Log user in
 		else if (user && (await bcrypt.compare(password, user.password))) {
-			res.status(201).json({ message: "User logged in!" });
+			const response = {
+				token: generateToken(user._id),
+			};
+			res.status(201).json(user);
 		} else {
 			res.status(400).json({ message: "Invalid password" });
 			throw new Error("Invalid password");
@@ -134,10 +139,10 @@ const generateToken = (id) => {
 	});
 };
 
-// @desc    Send reset password email
-// @route   GET /api/users/sendResetPasswordEmail
+// @desc    Send email
+// @route   GET /api/users/sendEmail
 // @access  Public
-const sendResetPasswordEmail = async (req, res) => {
+const sendEmail = asyncHandler(async (req, res) => {
 	const { credential } = req.body;
 
 	// Check all fields exist
@@ -153,34 +158,81 @@ const sendResetPasswordEmail = async (req, res) => {
 		} else {
 			// Send email
 			const email = user.email;
-			// const code =
-			const sgMail = require("@sendgrid/mail");
 
-			sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-			const msg = {
-				to: email,
-				from: {
-					name: "trnds",
-					email: process.env.FROM_EMAIL,
-				},
-				templateId: process.env.TEMPLATE_ID,
-			};
-			sgMail
-				.send(msg)
-				.then(() => {
-					res.status(200).json(email);
+			const accountSid = process.env.TWILIO_ACCOUNT_SID;
+			const authToken = process.env.TWILIO_AUTH_TOKEN;
+			const template = process.env.TEMPLATE_ID;
+			const client = require("twilio")(accountSid, authToken);
+
+			client.verify.v2
+				.services("VA1e1efd81385be28256ae9cdc28fc9a61")
+				.verifications.create({
+					channelConfiguration: {
+						template_id: "d-d73cc42785ab46158034f2bb46d571da",
+					},
+					to: email,
+					channel: "email",
+				})
+				.then((verification) => {
+					res.status(200);
+					console.log(verification.sid);
 				})
 				.catch((error) => {
-					res.status(400).json({ message: "Email failed to send" });
+					console.error(error);
+					res.status(500).json({
+						message: error.message + ". Error code " + error.code,
+					});
+				});
+		}
+	}
+});
+
+const verifyEmail = async (req, res) => {
+	const { credential, code } = req.body;
+	console.log("VERIFY EMAIL");
+
+	if (!code || !credential) {
+		res.status(400).json({ message: "Please enter all fields" });
+	} else {
+		const accountSid = process.env.TWILIO_ACCOUNT_SID;
+		const authToken = process.env.TWILIO_AUTH_TOKEN;
+		const client = require("twilio")(accountSid, authToken);
+
+		// Find email
+		const user = credential.includes("@")
+			? await User.findOne({ email: credential })
+			: await User.findOne({ username: credential });
+
+		if (!user) {
+			res.status(400).json({ message: "Username or email not found" });
+		} else {
+			client.verify.v2
+				.services("VA1e1efd81385be28256ae9cdc28fc9a61")
+				.verificationChecks.create({ to: user.email, code: code })
+				.then((verification_check) => {
+					console.log(verification_check.sid);
+					if (verification_check.status === "approved") {
+						console.log("STATUS: Approved");
+						return User.findOneAndUpdate(
+							{ email: user.email },
+							{ emailVerified: true },
+							{ new: true }
+						);
+					}
+					// ELSE IF REJECTED => STATUS 400 : ERROR MESSAGE
+				})
+				.then((user) => {
+					if (user) {
+						console.log("verify: ", user.emailVerified);
+						res.status(200).json(user);
+					} else
+						res.status(400).json({
+							message: "Could not verify user",
+						}); // CHANGE
 				});
 		}
 	}
 };
-
-// Verification code generator
-function generateVerificationCode() {
-	return Math.floor(100000 + Math.random() * 900000);
-}
 
 // Update user
 const updateUser = async (req, res) => {
@@ -227,7 +279,8 @@ module.exports = {
 	registerUser,
 	loginUser,
 	getMe,
-	sendResetPasswordEmail,
+	sendEmail,
+	verifyEmail,
 	updateUser,
 	deleteUser,
 };

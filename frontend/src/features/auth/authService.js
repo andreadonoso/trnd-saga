@@ -5,11 +5,6 @@ const API_URL = "/api/users/";
 // Register user
 const register = async (userData) => {
 	const res = await axios.post(API_URL + "register", userData);
-
-	if (res.data) {
-		localStorage.setItem("user", JSON.stringify(res.data));
-	}
-
 	return res.data;
 };
 
@@ -17,7 +12,7 @@ const register = async (userData) => {
 const login = async (userData) => {
 	const res = await axios.post(API_URL + "login", userData);
 
-	if (res.data) {
+	if (res.data.emailVerified) {
 		localStorage.setItem("user", JSON.stringify(res.data));
 	}
 
@@ -30,8 +25,19 @@ const logout = () => {
 };
 
 // Send reset password email
-const sendResetPasswordEmail = async (userData) => {
-	const res = await axios.post(API_URL + "sendResetPasswordEmail", userData);
+const sendEmail = async (userData) => {
+	const res = await axios.post(API_URL + "sendEmail", userData);
+	return res.data;
+};
+
+// Verify email
+const verifyEmail = async (userData) => {
+	const res = await axios.post(API_URL + "verifyEmail", userData);
+
+	if (res.data.emailVerified) {
+		localStorage.setItem("user", JSON.stringify(res.data));
+	}
+
 	return res.data;
 };
 
@@ -39,7 +45,8 @@ const authService = {
 	register,
 	login,
 	logout,
-	sendResetPasswordEmail,
+	sendEmail,
+	verifyEmail,
 };
 
 export default authService;

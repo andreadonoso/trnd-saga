@@ -53,12 +53,30 @@ export const logout = createAsyncThunk(
 	}
 );
 
-// Forgot password
-export const sendResetPasswordEmail = createAsyncThunk(
-	"auth/sendResetPasswordEmail",
+// Send email
+export const sendEmail = createAsyncThunk(
+	"auth/sendEmail",
 	async (user, thunkAPI) => {
 		try {
-			return await authService.sendResetPasswordEmail(user);
+			return await authService.sendEmail(user);
+		} catch (error) {
+			const message =
+				(error.response &&
+					error.response.data &&
+					error.response.data.message) ||
+				error.message ||
+				error.toString();
+			return thunkAPI.rejectWithValue(message);
+		}
+	}
+);
+
+// Verify email
+export const verifyEmail = createAsyncThunk(
+	"auth/verifyEmail",
+	async (user, thunkAPI) => {
+		try {
+			return await authService.verifyEmail(user);
 		} catch (error) {
 			const message =
 				(error.response &&
@@ -80,7 +98,6 @@ export const authSlice = createSlice({
 			state.isError = false;
 			state.isSuccess = false;
 			state.message = "";
-			state.email = "";
 		},
 	},
 	extraReducers: (builder) => {
@@ -91,13 +108,12 @@ export const authSlice = createSlice({
 			.addCase(register.fulfilled, (state, action) => {
 				state.isLoading = false;
 				state.isSuccess = true;
-				state.user = action.payload;
+				state.message = action.payload;
 			})
 			.addCase(register.rejected, (state, action) => {
 				state.isLoading = false;
 				state.isError = true;
 				state.message = action.payload;
-				state.user = null;
 			}) // LOGIN
 			.addCase(login.pending, (state) => {
 				state.isLoading = true;
@@ -115,21 +131,33 @@ export const authSlice = createSlice({
 			}) // LOGOUT
 			.addCase(logout.fulfilled, (state) => {
 				state.user = null;
-			}) // FORGOT PASSWORD
-			.addCase(sendResetPasswordEmail.pending, (state) => {
+			}) // SEND EMAIL (VERIFICATION)
+			.addCase(sendEmail.pending, (state) => {
 				state.isLoading = true;
 			})
-			.addCase(sendResetPasswordEmail.fulfilled, (state, action) => {
+			.addCase(sendEmail.fulfilled, (state, action) => {
 				state.isLoading = false;
 				state.isSuccess = true;
-				state.email = action.payload;
 			})
-			.addCase(sendResetPasswordEmail.rejected, (state, action) => {
+			.addCase(sendEmail.rejected, (state, action) => {
+				state.isLoading = false;
+				state.isError = true;
+				state.message = action.payload;
+			})
+			// VERIFY EMAIL
+			.addCase(verifyEmail.pending, (state) => {
+				state.isLoading = true;
+			})
+			.addCase(verifyEmail.fulfilled, (state, action) => {
+				state.isLoading = false;
+				state.isSuccess = true;
+				state.user = action.payload;
+			})
+			.addCase(verifyEmail.rejected, (state, action) => {
 				state.isLoading = false;
 				state.isError = true;
 				state.message = action.payload;
 				state.user = null;
-				state.email = null;
 			});
 	},
 });

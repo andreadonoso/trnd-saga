@@ -15,6 +15,11 @@ const userSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		emailVerified: {
+			type: Boolean,
+			required: true,
+			default: false,
+		},
 		age: {
 			type: Number,
 			required: false, //true
