@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { ToastContainer, Slide } from "react-toastify";
+import { Outlet } from "react-router-dom";
 
+import PrivateRoute from "./components/auth/privateRoute";
 import Header from "./components/header";
 import LandingPage from "./pages/landingPage";
 import FeedPage from "./pages/feedPage";
@@ -35,26 +37,41 @@ function App({ mode }) {
 				// }}
 			/>
 			<BrowserRouter>
-				<Header />
 				<Routes>
-					<Route exact path="/" element={<LandingPage />} />
-					<Route path="/explore" element={<ExplorePage />} />
-					<Route path="/feed" element={<FeedPage />} />
-					<Route path="/wishlist" element={<WishListPage />} />
-					<Route
-						path="/account"
-						element={
-							<AccountPage
-								colorMode={colorMode.toggleColorMode}
-							/>
-						}
-					/>
 					<Route path="*" element={<h1>404</h1>}></Route>
+					<Route exact path="/" element={<LandingPage />} />
+					<Route element={<ProtectedLayout />}>
+						<Route path="" element={<PrivateRoute />}>
+							<Route path="/explore" element={<ExplorePage />} />
+							<Route path="/feed" element={<FeedPage />} />
+							<Route
+								path="/wishlist"
+								element={<WishListPage />}
+							/>
+							<Route
+								path="/account"
+								element={
+									<AccountPage
+										colorMode={colorMode.toggleColorMode}
+									/>
+								}
+							/>
+						</Route>
+					</Route>
 				</Routes>
 			</BrowserRouter>
 		</>
 	);
 }
+
+const ProtectedLayout = () => {
+	return (
+		<>
+			<Header />
+			<Outlet />
+		</>
+	);
+};
 
 export default function ToggleColorMode() {
 	const [mode, setMode] = React.useState(() => {
