@@ -1,37 +1,16 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { register, sendEmail, reset } from "../../features/auth/authSlice.js";
+import { useState } from "react";
+import {
+	useRegisterMutation,
+	useSendEmailMutation,
+} from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
 
 const Register = ({ handleClick }) => {
-	const { isLoading, isError, isSuccess, message } = useSelector(
-		(state) => state.auth
-	);
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
-
-	useEffect(() => {
-		if (isError) toast.error(message);
-
-		if (isSuccess) {
-			toast.dismiss();
-			const cleanEmail = email.toLowerCase().trim();
-			const userData = { credential: cleanEmail };
-			setTimeout(() => {
-				dispatch(sendEmail(userData));
-				toast.success("Email sent! Please check your inbox");
-				handleClick("Email Verification", cleanEmail);
-			}, 400);
-		}
-		toast.clearWaitingQueue();
-
-		dispatch(reset());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isError, isSuccess, isLoading, message, navigate, dispatch]);
+	const [register, { isLoading }] = useRegisterMutation();
+	const [sendEmail] = useSendEmailMutation();
 
 	const [formData, setFormData] = useState({
 		email: "",
@@ -48,39 +27,46 @@ const Register = ({ handleClick }) => {
 		}));
 	};
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		event.preventDefault();
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		const hasLetters = /[a-zA-Z]/;
-		const hasNumbers = /\d/;
-		const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-		const cleanEmail = email.toLowerCase().trim();
+		try {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			const hasLetters = /[a-zA-Z]/;
+			const hasNumbers = /\d/;
+			const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+			const cleanEmail = email.toLowerCase().trim();
 
-		if (!cleanEmail || !password || !confirmPassword) {
-			toast.error("Please enter all fields");
-			toast.clearWaitingQueue();
-		} else if (!emailRegex.test(cleanEmail)) {
-			toast.error("Enter a valid email");
-			toast.clearWaitingQueue();
-		} else if (password.length < 8) {
-			toast.error("Password must have 8 - 20 characters");
-			toast.clearWaitingQueue();
-		} else if (
-			!hasLetters.test(password) ||
-			!hasNumbers.test(password) ||
-			!hasSpecialChars.test(password)
-		) {
-			toast.error(
-				"Password must have letters, numbers and special characters"
-			);
-			toast.clearWaitingQueue();
-		} else if (password !== confirmPassword) {
-			toast.error("Passwords don't match");
-			toast.clearWaitingQueue();
-		} else {
-			const userData = { email: cleanEmail, password };
-			dispatch(register(userData));
+			if (!cleanEmail || !password || !confirmPassword) {
+				toast.error("Please enter all fields");
+				toast.clearWaitingQueue();
+			} else if (!emailRegex.test(cleanEmail)) {
+				toast.error("Enter a valid email");
+				toast.clearWaitingQueue();
+			} else if (password.length < 8) {
+				toast.error("Password must have 8 - 20 characters");
+				toast.clearWaitingQueue();
+			} else if (
+				!hasLetters.test(password) ||
+				!hasNumbers.test(password) ||
+				!hasSpecialChars.test(password)
+			) {
+				toast.error(
+					"Password must have letters, numbers and special characters"
+				);
+				toast.clearWaitingQueue();
+			} else if (password !== confirmPassword) {
+				toast.error("Passwords don't match");
+				toast.clearWaitingQueue();
+			} else {
+				// REGISTER
+				const userData = { email: cleanEmail, password };
+				await register(userData).unwrap();
+				sendEmail({ credential: cleanEmail }).unwrap();
+				handleClick("Email Verification", cleanEmail);
+			}
+		} catch (err) {
+			toast.error(err?.data?.message || err.error);
 		}
 	};
 
@@ -123,7 +109,7 @@ const Register = ({ handleClick }) => {
 				type="submit"
 				fullWidth
 				variant="contained"
-				sx={{ mt: 1.2, mb: 1.5 }}
+				sx={{ mt: 0.5, mb: 1.5 }}
 			>
 				Sign Up
 			</Button>

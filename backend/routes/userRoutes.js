@@ -7,7 +7,9 @@ const {
 	getUser,
 	registerUser,
 	loginUser,
-	getMe,
+	getUserProfile,
+	updateUserProfile,
+	logoutUser,
 	sendEmail,
 	verifyEmail,
 	updateUser,
@@ -15,10 +17,14 @@ const {
 } = require("../controllers/userController");
 
 router.get("/", getUsers);
-router.get("/:id", getUser);
+// router.get("/:id", getUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/me", protect, getMe);
+router.post("/logout", logoutUser);
+router
+	.route("/profile")
+	.get(protect, getUserProfile)
+	.put(protect, updateUserProfile);
 router.post("/sendEmail", sendEmail);
 router.post("/verifyEmail", verifyEmail);
 router.patch("/:id", updateUser);

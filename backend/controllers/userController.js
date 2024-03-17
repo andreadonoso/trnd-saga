@@ -2,9 +2,11 @@ require("dotenv").config();
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+const generateToken = require("../utils/generateToken");
 
+// EDIT
 // @desc    Get all users
 // @route   GET /api/users/
 // @access  Private
@@ -13,6 +15,7 @@ const getUsers = async (req, res) => {
 	res.status(200).json(users);
 };
 
+// EDIT
 // @desc    Get a single user
 // @route   GET /api/users/:id
 // @access  Private
@@ -80,7 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
 	}
 });
 
-// Random username generator
+// @desc Random username generator
 function generateRandomUsername() {
 	let username = "user";
 	for (let i = 0; i < 12; i++) {
@@ -110,37 +113,76 @@ const loginUser = asyncHandler(async (req, res) => {
 			throw new Error("The user does not exist");
 		} // Log user in
 		else if (user && (await bcrypt.compare(password, user.password))) {
-			const response = {
-				token: generateToken(user._id),
-			};
-			res.status(201).json(user);
+			if (user.emailVerified) generateToken(res, user._id);
+			res.status(201).json({
+				_id: user._id,
+				username: user.username,
+				email: user.email,
+				emailVerified: user.emailVerified,
+			});
 		} else {
-			res.status(400).json({ message: "Invalid password" });
-			throw new Error("Invalid password");
+			res.status(400).json({ message: "Invalid email or password" });
+			throw new Error("Invalid email or password");
 		}
 	}
 });
 
-// @desc    Get logged-in user
-// @route   Get /api/users/login
+// @desc    Logout user
+// @route   POST /api/users/logout
 // @access  Private
-const getMe = asyncHandler(async (req, res) => {
-	const { _id, email } = await User.findById(req.user.id);
-	res.status(200).json({
-		id: _id,
-		email: email,
+const logoutUser = asyncHandler(async (req, res) => {
+	res.cookie("jwt", "", {
+		httpOnly: true,
+		expires: new Date(0),
 	});
+	res.status(200).json({ message: "User logged out" });
 });
 
-// Generate JWT
-const generateToken = (id) => {
-	return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-		expiresIn: "1d",
-	});
-};
+// EDIT
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
+const getUserProfile = asyncHandler(async (req, res) => {
+	const user = {
+		username: req.user.username,
+	};
+	res.status(200).json(user);
+});
+
+// EDIT
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+	const user = await User.findById(req.user._id);
+
+	if (user) {
+		user.username = req.body.username || user.username;
+		user.email = req.body.email || user.email;
+
+		// Update user password
+		if (req.body.password) {
+			const salt = await bcrypt.genSalt();
+			const hashedPassword = await bcrypt.hash(req.body.password, salt);
+			user.password = hashedPassword;
+		}
+		const updatedUser = await user.save();
+
+		res.status(200).json({
+			_id: updatedUser._id,
+			username: updatedUser.username,
+			email: updatedUser.email,
+			emailVerified: updatedUser.emailVerified,
+			password: updatedUser.password,
+		});
+	} else {
+		res.status(404);
+		throw new Error("User not found");
+	}
+});
 
 // @desc    Send email
-// @route   GET /api/users/sendEmail
+// @route   POST /api/users/sendEmail
 // @access  Public
 const sendEmail = asyncHandler(async (req, res) => {
 	const { credential } = req.body;
@@ -175,7 +217,6 @@ const sendEmail = asyncHandler(async (req, res) => {
 				})
 				.then((verification) => {
 					res.status(200);
-					console.log(verification.sid);
 				})
 				.catch((error) => {
 					console.error(error);
@@ -187,9 +228,11 @@ const sendEmail = asyncHandler(async (req, res) => {
 	}
 });
 
-const verifyEmail = async (req, res) => {
+// @desc    Verify email
+// @route   POST /api/users/verifyEmail
+// @access  Public
+const verifyEmail = asyncHandler(async (req, res) => {
 	const { credential, code } = req.body;
-	console.log("VERIFY EMAIL");
 
 	if (!code || !credential) {
 		res.status(400).json({ message: "Please enter all fields" });
@@ -210,29 +253,37 @@ const verifyEmail = async (req, res) => {
 				.services("VA1e1efd81385be28256ae9cdc28fc9a61")
 				.verificationChecks.create({ to: user.email, code: code })
 				.then((verification_check) => {
-					console.log(verification_check.sid);
 					if (verification_check.status === "approved") {
-						console.log("STATUS: Approved");
 						return User.findOneAndUpdate(
 							{ email: user.email },
 							{ emailVerified: true },
 							{ new: true }
 						);
 					}
-					// ELSE IF REJECTED => STATUS 400 : ERROR MESSAGE
 				})
 				.then((user) => {
 					if (user) {
-						console.log("verify: ", user.emailVerified);
-						res.status(200).json(user);
+						generateToken(res, user._id);
+						res.status(200).json({
+							_id: user._id,
+							username: user.username,
+							email: user.email,
+							emailVerified: user.emailVerified,
+						});
 					} else
 						res.status(400).json({
-							message: "Could not verify user",
-						}); // CHANGE
+							message: "Incorrect verification code",
+						});
+				})
+				.catch((error) => {
+					console.error(error);
+					res.status(500).json({
+						message: error.message + ". Error code " + error.code,
+					});
 				});
 		}
 	}
-};
+});
 
 // Update user
 const updateUser = async (req, res) => {
@@ -278,7 +329,9 @@ module.exports = {
 	getUser,
 	registerUser,
 	loginUser,
-	getMe,
+	getUserProfile,
+	updateUserProfile,
+	logoutUser,
 	sendEmail,
 	verifyEmail,
 	updateUser,

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { sendEmail, reset } from "../../features/auth/authSlice.js";
+// import { sendEmail } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
@@ -34,7 +34,7 @@ const ForgotPassword = ({ handleClick }) => {
 		}
 		toast.clearWaitingQueue();
 
-		dispatch(reset());
+		// dispatch(reset());
 		// eslint-disable-next-line
 	}, [email, isError, isSuccess, isLoading, message, navigate, dispatch]);
 
@@ -58,8 +58,8 @@ const ForgotPassword = ({ handleClick }) => {
 			emailRegex.test(credential.trim()) ||
 			usernameRegex.test(credential.trim())
 		) {
-			const userData = { credential: credential.toLowerCase().trim() };
-			dispatch(sendEmail(userData));
+			// const userData = { credential: credential.toLowerCase().trim() };
+			// dispatch(sendEmail(userData));
 		} else {
 			toast.error("Invalid username or email");
 			toast.clearWaitingQueue();
@@ -82,7 +82,7 @@ const ForgotPassword = ({ handleClick }) => {
 				type="submit"
 				fullWidth
 				variant="contained"
-				sx={{ mt: 1.2, mb: 1.5 }}
+				sx={{ mt: 0.5, mb: 1.5 }}
 			>
 				Send Email
 			</Button>

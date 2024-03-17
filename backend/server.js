@@ -4,11 +4,13 @@ const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
 const collectionRoutes = require("./routes/collectionRoutes");
 const productRoutes = require("./routes/productRoutes");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const URI = process.env.URI;
 const PORT = process.env.PORT || 4000;
@@ -17,6 +19,7 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use((req, res, next) => {
 	console.log(req.path, req.method);
 	next();

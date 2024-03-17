@@ -110,7 +110,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
 				root: {
 					"& .MuiInputBase-root": {
 						backgroundColor: "primary",
-						borderRadius: 7,
+						borderRadius: 5,
+						border: "1px solid transparent",
+						transition: "border-color 0.2s",
+					},
+					"& .MuiInputBase-root:focus-within": {
+						borderColor: "#dddddd",
 					},
 					"& .MuiInputBase-input::placeholder": {
 						fontSize: "medium",
@@ -122,7 +127,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						paddingBottom: 15,
 						paddingLeft: 17,
 						paddingRight: 17,
-						borderRadius: 7,
+						borderRadius: 5,
 					},
 				},
 			},
@@ -133,13 +138,15 @@ const getDesignTokens = (mode: PaletteMode) => ({
 				hiddenLabel: true,
 				InputProps: { disableUnderline: true },
 				InputLabelProps: { size: "small" },
-				margin: "dense",
+				sx: {
+					padding: "4px 0px",
+				},
 			},
 		},
 		MuiButton: {
 			styleOverrides: {
 				root: {
-					borderRadius: 7,
+					borderRadius: 5,
 					textTransform: "none",
 					fontWeight: 600,
 					fontSize: "medium",

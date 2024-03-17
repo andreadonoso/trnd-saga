@@ -2,43 +2,29 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { login, reset, sendEmail } from "../../features/auth/authSlice.js";
+import {
+	useLoginMutation,
+	useSendEmailMutation,
+} from "../../slices/usersApiSlice";
+import { setCredentials } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
 
 const Login = ({ handleClick }) => {
-	const { user, isLoading, isError, isSuccess, message } = useSelector(
-		(state) => state.auth
-	);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const [login, { isLoading }] = useLoginMutation();
+	const [sendEmail] = useSendEmailMutation();
+	const user = useSelector((state) => state.auth.user);
 
 	useEffect(() => {
-		if (isError) toast.error(message);
-
-		// If success or the user is already logged in
-		if (isSuccess || localStorage.getItem("user")) {
+		if (user) {
 			toast.dismiss();
-			if (user.emailVerified) {
-				setTimeout(() => {
-					navigate("/account");
-				}, 400);
-			} else if (!user.emailVerified) {
-				const cleanCredential = credential.toLowerCase().trim();
-				const userData = { credential: cleanCredential };
-				setTimeout(() => {
-					dispatch(sendEmail(userData));
-					toast.success("Email sent! Please check your inbox");
-					handleClick("Email Verification", cleanCredential);
-				}, 400);
-			}
+			navigate("/account");
 		}
 		toast.clearWaitingQueue();
-
-		dispatch(reset());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, isError, isSuccess, isLoading, message, navigate, dispatch]);
+	}, [user, navigate]);
 
 	const [formData, setFormData] = useState({
 		credential: "",
@@ -54,28 +40,37 @@ const Login = ({ handleClick }) => {
 		}));
 	};
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		event.preventDefault();
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		const usernameRegex = /^[a-zA-Z0-9_.]+$/;
-		const cleanCredential = credential.toLowerCase().trim();
+		try {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+			const cleanCredential = credential.toLowerCase().trim();
 
-		if (!credential || !password) {
-			toast.error("Please enter all fields");
-			toast.clearWaitingQueue();
-		} else if (
-			emailRegex.test(cleanCredential) ||
-			usernameRegex.test(cleanCredential)
-		) {
-			const userData = {
-				credential: cleanCredential,
-				password,
-			};
-			dispatch(login(userData));
-		} else {
-			toast.error("Invalid username or email");
-			toast.clearWaitingQueue();
+			if (!credential || !password) {
+				toast.error("Please enter all fields");
+				toast.clearWaitingQueue();
+			} else if (
+				emailRegex.test(cleanCredential) ||
+				usernameRegex.test(cleanCredential)
+			) {
+				// LOGIN
+				const userData = { credential: cleanCredential, password };
+				const res = await login(userData).unwrap();
+				if (res.emailVerified) {
+					dispatch(setCredentials({ ...res }));
+					navigate("/account");
+				} else {
+					sendEmail({ credential: cleanCredential }).unwrap();
+					handleClick("Email Verification", cleanCredential);
+				}
+			} else {
+				toast.error("Invalid username or email");
+				toast.clearWaitingQueue();
+			}
+		} catch (err) {
+			toast.error(err?.data?.message || err.error);
 		}
 	};
 
@@ -107,7 +102,7 @@ const Login = ({ handleClick }) => {
 				type="submit"
 				fullWidth
 				variant="contained"
-				sx={{ mt: 1.2, mb: 1.5 }}
+				sx={{ mt: 0.5, mb: 1.5 }}
 			>
 				Log In
 			</Button>

@@ -3,44 +3,29 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-	verifyEmail,
-	sendEmail,
-	reset,
-} from "../../features/auth/authSlice.js";
+	useSendEmailMutation,
+	useVerifyEmailMutation,
+} from "../../slices/usersApiSlice";
+import { setCredentials } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Grid, Link, Typography, Box } from "@mui/material";
 import { MuiOtpInput } from "mui-one-time-password-input";
 
 const EmailVerification = ({ handleClick, credential }) => {
-	const { user, isLoading, isError, isSuccess, message } = useSelector(
-		(state) => state.auth
-	);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const [sendEmail] = useSendEmailMutation();
+	const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
+	const user = useSelector((state) => state.auth.user);
 
-	// CHANGE EMAIL TO CREDENTIAL
 	useEffect(() => {
-		if (isError) toast.error(message);
-
-		if (isSuccess && user.emailVerified) {
+		if (user) {
 			toast.dismiss();
-			setTimeout(() => {
-				navigate("/account");
-			}, 400);
-		} else if (isSuccess && !user.emailVerified) {
-			toast.dismiss();
-			const userData = { credential };
-			setTimeout(() => {
-				dispatch(sendEmail(userData));
-				toast.success("Email sent! Please check your inbox");
-			}, 400);
+			navigate("/account");
 		}
 		toast.clearWaitingQueue();
-
-		dispatch(reset());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, isError, isSuccess, isLoading, message, navigate, dispatch]);
+	}, [user, navigate]);
 
 	const [otp, setOtp] = useState("");
 
@@ -62,9 +47,20 @@ const EmailVerification = ({ handleClick, credential }) => {
 		return matchIsNumeric(value);
 	};
 
-	const handleComplete = (finalValue) => {
-		const userData = { credential, code: finalValue };
-		dispatch(verifyEmail(userData));
+	const handleComplete = async (finalValue) => {
+		try {
+			// VERIFY EMAIL & LOGIN
+			const userData = { credential, code: finalValue };
+			const res = await verifyEmail(userData).unwrap();
+			if (res.emailVerified) {
+				dispatch(setCredentials({ ...res }));
+				navigate("/account");
+			}
+			// OTHERWISE: COULDNT VERIFY
+		} catch (err) {
+			toast.error(err?.data?.message || err.error);
+		}
+		// dispatch(verifyEmail(userData));
 	};
 
 	return (
@@ -75,7 +71,16 @@ const EmailVerification = ({ handleClick, credential }) => {
 				onChange={handleChange}
 				validateChar={validateChar}
 				onComplete={handleComplete}
-				sx={{ gap: "6px", mb: 2 }}
+				sx={{
+					gap: "5px",
+					mb: 2,
+					display: "flex",
+					justifyContent: "center",
+					"& .MuiInputBase-input": {
+						width: "13px",
+						height: "13px",
+					},
+				}}
 				autoFocus
 			/>
 			<Box justifyContent="center">
@@ -91,9 +96,26 @@ const EmailVerification = ({ handleClick, credential }) => {
 			<Grid container justifyContent="center">
 				<Grid item>
 					<Link
-						onClick={() => {
+						onClick={async () => {
 							const userData = { credential };
-							dispatch(sendEmail(userData));
+							try {
+								const res = await sendEmail(userData);
+								if (res.status === 200) {
+									toast.success(
+										"Email sent! Please check your inbox"
+									);
+								} else {
+									toast.error(
+										"Failed to send email:",
+										res.statusText
+									);
+								}
+							} catch (error) {
+								toast.error(
+									"Error occurred while sending email:",
+									error
+								);
+							}
 						}}
 						variant="body2"
 						underline="hover"

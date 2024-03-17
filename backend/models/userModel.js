@@ -6,6 +6,7 @@ const userSchema = new Schema(
 		username: {
 			type: String,
 			required: false, //true
+			unique: true,
 		},
 		password: {
 			type: String,
@@ -14,6 +15,7 @@ const userSchema = new Schema(
 		email: {
 			type: String,
 			required: true,
+			unique: true,
 		},
 		emailVerified: {
 			type: Boolean,
@@ -24,7 +26,7 @@ const userSchema = new Schema(
 			type: Number,
 			required: false, //true
 		},
-		profile: {
+		profilePic: {
 			type: String,
 			required: false,
 		},
