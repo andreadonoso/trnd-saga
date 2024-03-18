@@ -1,23 +1,24 @@
 import * as React from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useResetPasswordMutation } from "../../slices/usersApiSlice";
-import { setCredentials } from "../../slices/authSlice.js";
+import {
+	useRegisterMutation,
+	useSendEmailMutation,
+} from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
 
-const ResetPassword = ({ handleClick, id }) => {
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
-	const [resetPassword] = useResetPasswordMutation();
+const Register = ({ handleClick }) => {
+	const [register, { isLoading }] = useRegisterMutation();
+	const [sendEmail] = useSendEmailMutation();
 
 	const [formData, setFormData] = useState({
+		email: "",
 		password: "",
 		confirmPassword: "",
 	});
 
-	const { password, confirmPassword } = formData;
+	const { email, password, confirmPassword } = formData;
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -30,12 +31,17 @@ const ResetPassword = ({ handleClick, id }) => {
 		event.preventDefault();
 
 		try {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			const hasLetters = /[a-zA-Z]/;
 			const hasNumbers = /\d/;
 			const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+			const cleanEmail = email.toLowerCase().trim();
 
-			if (!password || !confirmPassword) {
+			if (!cleanEmail || !password || !confirmPassword) {
 				toast.error("Please enter all fields");
+				toast.clearWaitingQueue();
+			} else if (!emailRegex.test(cleanEmail)) {
+				toast.error("Enter a valid email");
 				toast.clearWaitingQueue();
 			} else if (password.length < 8) {
 				toast.error("Password must have 8 - 20 characters");
@@ -53,16 +59,21 @@ const ResetPassword = ({ handleClick, id }) => {
 				toast.error("Passwords don't match");
 				toast.clearWaitingQueue();
 			} else {
-				// RESET PASSWORD
-				const userData = { id, password };
-				const resetRes = await resetPassword(userData).unwrap();
-				if (resetRes) {
-					dispatch(setCredentials({ ...resetRes }));
-					navigate("/account");
-				} else {
-					toast.error(
-						"Could not reset password. Please try again later."
-					);
+				// REGISTER
+				const userData = { email: cleanEmail, password };
+				const registerRes = await register(userData).unwrap();
+				if (registerRes) {
+					const emailRes = await sendEmail({
+						credential: cleanEmail,
+					}).unwrap();
+
+					if (emailRes) {
+						handleClick("Email Verification", cleanEmail, "li");
+					} else {
+						toast.error(
+							"Failed to send email. Please try again later."
+						);
+					}
 				}
 			}
 		} catch (err) {
@@ -72,6 +83,17 @@ const ResetPassword = ({ handleClick, id }) => {
 
 	return (
 		<form onSubmit={onSubmit} noValidate>
+			<TextField
+				name="email"
+				type="text"
+				id="email"
+				fullWidth
+				placeholder="Email"
+				inputProps={{ "aria-label": "email" }}
+				autoComplete="email"
+				onChange={onChange}
+				value={email}
+			/>
 			<TextField
 				name="password"
 				type="password"
@@ -100,7 +122,7 @@ const ResetPassword = ({ handleClick, id }) => {
 				variant="contained"
 				sx={{ mt: 0.5, mb: 1.5 }}
 			>
-				Reset Password
+				Sign Up
 			</Button>
 			<Grid container justifyContent="center">
 				<Grid item>
@@ -112,7 +134,7 @@ const ResetPassword = ({ handleClick, id }) => {
 						underline="hover"
 						color="secondary"
 					>
-						{"Cancel"}
+						{"Already have an account?"}
 					</Link>
 				</Grid>
 			</Grid>
@@ -120,4 +142,4 @@ const ResetPassword = ({ handleClick, id }) => {
 	);
 };
 
-export default ResetPassword;
+export default Register;

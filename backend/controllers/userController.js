@@ -2,9 +2,11 @@ require("dotenv").config();
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+const generateToken = require("../utils/generateToken");
 
+// EDIT
 // @desc    Get all users
 // @route   GET /api/users/
 // @access  Private
@@ -13,6 +15,7 @@ const getUsers = async (req, res) => {
 	res.status(200).json(users);
 };
 
+// EDIT
 // @desc    Get a single user
 // @route   GET /api/users/:id
 // @access  Private
@@ -69,7 +72,9 @@ const registerUser = asyncHandler(async (req, res) => {
 			});
 
 			if (user) {
-				res.status(201).json({ message: "User signed up!" });
+				res.status(201).json({
+					message: "User registered successfully",
+				});
 			} else {
 				res.status(400).json({ message: "Invalid user data" });
 				throw new Error("Invalid user data");
@@ -78,7 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
 	}
 });
 
-// Random username generator
+// @desc Random username generator
 function generateRandomUsername() {
 	let username = "user";
 	for (let i = 0; i < 12; i++) {
@@ -108,36 +113,78 @@ const loginUser = asyncHandler(async (req, res) => {
 			throw new Error("The user does not exist");
 		} // Log user in
 		else if (user && (await bcrypt.compare(password, user.password))) {
-			res.status(201).json({ message: "User logged in!" });
+			if (user.emailVerified) generateToken(res, user._id);
+			res.status(201).json({
+				_id: user._id,
+				username: user.username,
+				email: user.email,
+				emailVerified: user.emailVerified,
+			});
 		} else {
-			res.status(400).json({ message: "Invalid password" });
-			throw new Error("Invalid password");
+			res.status(400).json({ message: "Invalid email or password" });
+			throw new Error("Invalid email or password");
 		}
 	}
 });
 
-// @desc    Get logged-in user
-// @route   Get /api/users/login
+// @desc    Logout user
+// @route   POST /api/users/logout
 // @access  Private
-const getMe = asyncHandler(async (req, res) => {
-	const { _id, email } = await User.findById(req.user.id);
-	res.status(200).json({
-		id: _id,
-		email: email,
+const logoutUser = asyncHandler(async (req, res) => {
+	res.cookie("jwt", "", {
+		httpOnly: true,
+		expires: new Date(0),
 	});
+	res.status(200).json({ message: "User logged out" });
 });
 
-// Generate JWT
-const generateToken = (id) => {
-	return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-		expiresIn: "1d",
-	});
-};
+// EDIT
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
+const getUserProfile = asyncHandler(async (req, res) => {
+	const user = {
+		username: req.user.username,
+	};
+	res.status(200).json(user);
+});
 
-// @desc    Send reset password email
-// @route   GET /api/users/sendResetPasswordEmail
+// EDIT
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+	const user = await User.findById(req.user._id);
+
+	if (user) {
+		user.username = req.body.username || user.username;
+		user.email = req.body.email || user.email;
+
+		// Update user password
+		if (req.body.password) {
+			const salt = await bcrypt.genSalt();
+			const hashedPassword = await bcrypt.hash(req.body.password, salt);
+			user.password = hashedPassword;
+		}
+		const updatedUser = await user.save();
+
+		res.status(200).json({
+			_id: updatedUser._id,
+			username: updatedUser.username,
+			email: updatedUser.email,
+			emailVerified: updatedUser.emailVerified,
+			password: updatedUser.password,
+		});
+	} else {
+		res.status(404);
+		throw new Error("User not found");
+	}
+});
+
+// @desc    Send email
+// @route   POST /api/users/sendEmail
 // @access  Public
-const sendResetPasswordEmail = async (req, res) => {
+const sendEmail = asyncHandler(async (req, res) => {
 	const { credential } = req.body;
 
 	// Check all fields exist
@@ -153,34 +200,135 @@ const sendResetPasswordEmail = async (req, res) => {
 		} else {
 			// Send email
 			const email = user.email;
-			// const code =
-			const sgMail = require("@sendgrid/mail");
 
-			sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-			const msg = {
-				to: email,
-				from: {
-					name: "trnds",
-					email: process.env.FROM_EMAIL,
-				},
-				templateId: process.env.TEMPLATE_ID,
-			};
-			sgMail
-				.send(msg)
-				.then(() => {
-					res.status(200).json(email);
+			const accountSid = process.env.TWILIO_ACCOUNT_SID;
+			const authToken = process.env.TWILIO_AUTH_TOKEN;
+			const template = process.env.TEMPLATE_ID;
+			const client = require("twilio")(accountSid, authToken);
+
+			client.verify.v2
+				.services("VA1e1efd81385be28256ae9cdc28fc9a61")
+				.verifications.create({
+					channelConfiguration: {
+						template_id: "d-d73cc42785ab46158034f2bb46d571da",
+					},
+					to: email,
+					channel: "email",
+				})
+				.then((verification) => {
+					res.status(200).json({
+						message: "Email sent successfully!",
+					});
 				})
 				.catch((error) => {
-					res.status(400).json({ message: "Email failed to send" });
+					console.error(error);
+					res.status(500).json({
+						message: error.message + ". Error code " + error.code,
+					});
 				});
 		}
 	}
-};
+});
 
-// Verification code generator
-function generateVerificationCode() {
-	return Math.floor(100000 + Math.random() * 900000);
-}
+// @desc    Verify email
+// @route   POST /api/users/verifyEmail
+// @access  Public
+const verifyEmail = asyncHandler(async (req, res) => {
+	const { credential, code } = req.body;
+
+	if (!code || !credential) {
+		res.status(400).json({ message: "Please enter all fields" });
+	} else {
+		const accountSid = process.env.TWILIO_ACCOUNT_SID;
+		const authToken = process.env.TWILIO_AUTH_TOKEN;
+		const client = require("twilio")(accountSid, authToken);
+
+		// Find email
+		const user = credential.includes("@")
+			? await User.findOne({ email: credential })
+			: await User.findOne({ username: credential });
+
+		if (!user) {
+			res.status(400).json({ message: "Username or email not found" });
+		} else {
+			client.verify.v2
+				.services("VA1e1efd81385be28256ae9cdc28fc9a61")
+				.verificationChecks.create({ to: user.email, code: code })
+				.then((verification_check) => {
+					if (verification_check.status === "approved") {
+						return User.findOneAndUpdate(
+							{ email: user.email },
+							{ emailVerified: true },
+							{ new: true }
+						);
+					}
+				})
+				.then((user) => {
+					if (user) {
+						generateToken(res, user._id);
+						res.status(200).json({
+							_id: user._id,
+							username: user.username,
+							email: user.email,
+							emailVerified: user.emailVerified,
+						});
+					} else
+						res.status(400).json({
+							message: "Incorrect verification code",
+						});
+				})
+				.catch((error) => {
+					console.error(error);
+					res.status(error.status).json({
+						message: error.message + ". Error code " + error.code,
+					});
+				});
+		}
+	}
+});
+
+// @desc    Reset password
+// @route   PATCH /api/users/reset
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+	const { id, password } = req.body;
+
+	// Check all fields
+	if (!id || !password) {
+		res.status(400).json({ message: "Please enter all fields" });
+		throw new Error("Please enter all fields");
+	} else {
+		// Hash password
+		const salt = await bcrypt.genSalt();
+		const hashedPassword = await bcrypt.hash(password, salt);
+
+		// Look up user and update password if it exists
+		const user = await User.findOneAndUpdate(
+			{ _id: id },
+			{
+				password: hashedPassword,
+			},
+			{ new: true }
+		);
+
+		if (!user) {
+			res.status(400).json({ message: "The user does not exist" });
+			throw new Error("The user does not exist");
+		} // Log user in
+		else if (user) {
+			generateToken(res, user._id);
+			res.status(201).json({
+				_id: user._id,
+				username: user.username,
+				email: user.email,
+				emailVerified: user.emailVerified,
+			});
+		} else {
+			res.status(400).json({ message: "Invalid email or password" });
+			throw new Error("Invalid email or password");
+		}
+	}
+});
 
 // Update user
 const updateUser = async (req, res) => {
@@ -226,8 +374,12 @@ module.exports = {
 	getUser,
 	registerUser,
 	loginUser,
-	getMe,
-	sendResetPasswordEmail,
+	getUserProfile,
+	updateUserProfile,
+	logoutUser,
+	sendEmail,
+	verifyEmail,
+	resetPassword,
 	updateUser,
 	deleteUser,
 };
