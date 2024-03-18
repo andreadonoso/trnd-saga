@@ -12,6 +12,7 @@ import FeedPage from "./pages/feedPage";
 import ExplorePage from "./pages/explorePage";
 import WishListPage from "./pages/wishListPage";
 import AccountPage from "./pages/accountPage";
+import Trnds404 from "./pages/trnds404";
 import getDesignTokens from "./helpers/getDesignTokens";
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
@@ -38,7 +39,7 @@ function App({ mode }) {
 			/>
 			<BrowserRouter>
 				<Routes>
-					<Route path="*" element={<h1>404</h1>}></Route>
+					<Route path="*" element={<Trnds404 />}></Route>
 					<Route exact path="/" element={<LandingPage />} />
 					<Route element={<ProtectedLayout />}>
 						<Route path="" element={<PrivateRoute />}>
