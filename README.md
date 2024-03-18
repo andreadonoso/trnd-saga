@@ -6,6 +6,12 @@ Explore, discover, and express your personal style via collections of online pro
 - Recommendation system: Collaborative filtering, content-based filtering
   
   # This project is in development and NOT ready for use
-- Test email: test@test.com
-- Test username: user009447432845
+  Verified user:
+- Email: test@test.com
+- Username: test
+- Password: test1234!
+
+  Not verified:
+- Email: testing@test.com
+- Username: testing
 - Password: test1234!
