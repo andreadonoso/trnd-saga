@@ -57,13 +57,26 @@ const Login = ({ handleClick }) => {
 			) {
 				// LOGIN
 				const userData = { credential: cleanCredential, password };
-				const res = await login(userData).unwrap();
-				if (res.emailVerified) {
-					dispatch(setCredentials({ ...res }));
+				const loginRes = await login(userData).unwrap();
+				if (loginRes.emailVerified) {
+					dispatch(setCredentials({ ...loginRes }));
 					navigate("/account");
 				} else {
-					sendEmail({ credential: cleanCredential }).unwrap();
-					handleClick("Email Verification", cleanCredential);
+					const emailRes = await sendEmail({
+						credential: cleanCredential,
+					}).unwrap();
+
+					if (emailRes) {
+						handleClick(
+							"Email Verification",
+							cleanCredential,
+							"li"
+						);
+					} else {
+						toast.error(
+							"Failed to send email. Please try again later."
+						);
+					}
 				}
 			} else {
 				toast.error("Invalid username or email");

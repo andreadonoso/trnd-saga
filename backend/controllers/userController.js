@@ -216,7 +216,9 @@ const sendEmail = asyncHandler(async (req, res) => {
 					channel: "email",
 				})
 				.then((verification) => {
-					res.status(200);
+					res.status(200).json({
+						message: "Email sent successfully!",
+					});
 				})
 				.catch((error) => {
 					console.error(error);
@@ -285,6 +287,49 @@ const verifyEmail = asyncHandler(async (req, res) => {
 	}
 });
 
+// @desc    Reset password
+// @route   PATCH /api/users/reset
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+	const { id, password } = req.body;
+
+	// Check all fields
+	if (!id || !password) {
+		res.status(400).json({ message: "Please enter all fields" });
+		throw new Error("Please enter all fields");
+	} else {
+		// Hash password
+		const salt = await bcrypt.genSalt();
+		const hashedPassword = await bcrypt.hash(password, salt);
+
+		// Look up user and update password if it exists
+		const user = await User.findOneAndUpdate(
+			{ _id: id },
+			{
+				password: hashedPassword,
+			},
+			{ new: true }
+		);
+
+		if (!user) {
+			res.status(400).json({ message: "The user does not exist" });
+			throw new Error("The user does not exist");
+		} // Log user in
+		else if (user) {
+			generateToken(res, user._id);
+			res.status(201).json({
+				_id: user._id,
+				username: user.username,
+				email: user.email,
+				emailVerified: user.emailVerified,
+			});
+		} else {
+			res.status(400).json({ message: "Invalid email or password" });
+			throw new Error("Invalid email or password");
+		}
+	}
+});
+
 // Update user
 const updateUser = async (req, res) => {
 	const { id } = req.params;
@@ -334,6 +379,7 @@ module.exports = {
 	logoutUser,
 	sendEmail,
 	verifyEmail,
+	resetPassword,
 	updateUser,
 	deleteUser,
 };

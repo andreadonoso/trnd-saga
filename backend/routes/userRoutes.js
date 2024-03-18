@@ -7,6 +7,7 @@ const {
 	getUser,
 	registerUser,
 	loginUser,
+	resetPassword,
 	getUserProfile,
 	updateUserProfile,
 	logoutUser,
@@ -21,6 +22,7 @@ router.get("/", getUsers);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
+router.patch("/reset", resetPassword);
 router
 	.route("/profile")
 	.get(protect, getUserProfile)

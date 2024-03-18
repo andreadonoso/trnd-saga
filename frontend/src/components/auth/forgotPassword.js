@@ -1,42 +1,14 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-// import { sendEmail } from "../../slices/authSlice.js";
+import { useState } from "react";
+import { useSendEmailMutation } from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
 
 const ForgotPassword = ({ handleClick }) => {
-	const { email, isLoading, isError, isSuccess, message } = useSelector(
-		(state) => state.auth
-	);
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
-
+	const [sendEmail] = useSendEmailMutation();
 	const [formData, setFormData] = useState({ credential: "" });
 	const { credential } = formData;
-
-	useEffect(() => {
-		if (isError) toast.error(message);
-
-		// If success
-		if (isSuccess) {
-			// console.log(email);
-			// const verifyEmail = email;
-
-			toast.dismiss();
-			setTimeout(() => {
-				localStorage.setItem("email", email);
-				handleClick("Email Verification");
-				toast.success("Email sent! Please check your inbox");
-			}, 400);
-		}
-		toast.clearWaitingQueue();
-
-		// dispatch(reset());
-		// eslint-disable-next-line
-	}, [email, isError, isSuccess, isLoading, message, navigate, dispatch]);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -45,24 +17,38 @@ const ForgotPassword = ({ handleClick }) => {
 		}));
 	};
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		event.preventDefault();
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+		try {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+			const cleanCredential = credential.toLowerCase().trim();
 
-		if (!credential) {
-			toast.error("Please enter all fields");
-			toast.clearWaitingQueue();
-		} else if (
-			emailRegex.test(credential.trim()) ||
-			usernameRegex.test(credential.trim())
-		) {
-			// const userData = { credential: credential.toLowerCase().trim() };
-			// dispatch(sendEmail(userData));
-		} else {
-			toast.error("Invalid username or email");
-			toast.clearWaitingQueue();
+			if (!credential) {
+				toast.error("Please enter all fields");
+				toast.clearWaitingQueue();
+			} else if (
+				emailRegex.test(cleanCredential) ||
+				usernameRegex.test(cleanCredential)
+			) {
+				// FORGOT PASSWORD
+				const userData = { credential: cleanCredential };
+				const emailRes = await sendEmail(userData).unwrap();
+
+				if (emailRes) {
+					handleClick("Email Verification", cleanCredential, "rp");
+				} else {
+					toast.error(
+						"Failed to send email. Please try again later."
+					);
+				}
+			} else {
+				toast.error("Invalid username or email");
+				toast.clearWaitingQueue();
+			}
+		} catch (err) {
+			toast.error(err?.data?.message || err.error);
 		}
 	};
 	return (

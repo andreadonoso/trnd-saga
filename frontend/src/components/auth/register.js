@@ -61,9 +61,20 @@ const Register = ({ handleClick }) => {
 			} else {
 				// REGISTER
 				const userData = { email: cleanEmail, password };
-				await register(userData).unwrap();
-				sendEmail({ credential: cleanEmail }).unwrap();
-				handleClick("Email Verification", cleanEmail);
+				const registerRes = await register(userData).unwrap();
+				if (registerRes) {
+					const emailRes = await sendEmail({
+						credential: cleanEmail,
+					}).unwrap();
+
+					if (emailRes) {
+						handleClick("Email Verification", cleanEmail, "li");
+					} else {
+						toast.error(
+							"Failed to send email. Please try again later."
+						);
+					}
+				}
 			}
 		} catch (err) {
 			toast.error(err?.data?.message || err.error);

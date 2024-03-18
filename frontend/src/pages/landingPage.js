@@ -23,14 +23,16 @@ const LandingPage = () => {
 
 	const [title, setTitle] = useState("Log In");
 	const [credential, setCredential] = useState("");
+	const [option, setOption] = useState("");
 	const [checked, setChecked] = useState(true);
 
-	const handleClick = (title, credential) => {
+	const handleClick = (title, credential, option) => {
 		setChecked((prev) => !prev);
 		setTimeout(() => {
 			setChecked((prev) => !prev);
 			setTitle(title);
 			if (credential) setCredential(credential);
+			if (option) setOption(option);
 		}, 300);
 	};
 
@@ -113,10 +115,14 @@ const LandingPage = () => {
 								<EmailVerification
 									handleClick={handleClick}
 									credential={credential}
+									option={option}
 								/>
 							)}
 							{title === "Reset Password" && (
-								<ResetPassword handleClick={handleClick} />
+								<ResetPassword
+									handleClick={handleClick}
+									id={credential}
+								/>
 							)}
 						</Box>
 					</Fade>

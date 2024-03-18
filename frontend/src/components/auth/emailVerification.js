@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Grid, Link, Typography, Box } from "@mui/material";
 import { MuiOtpInput } from "mui-one-time-password-input";
 
-const EmailVerification = ({ handleClick, credential }) => {
+const EmailVerification = ({ handleClick, credential, option }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const [sendEmail] = useSendEmailMutation();
@@ -49,18 +49,18 @@ const EmailVerification = ({ handleClick, credential }) => {
 
 	const handleComplete = async (finalValue) => {
 		try {
-			// VERIFY EMAIL & LOGIN
+			// VERIFY EMAIL
 			const userData = { credential, code: finalValue };
 			const res = await verifyEmail(userData).unwrap();
-			if (res.emailVerified) {
+			if (res.emailVerified && option === "li") {
 				dispatch(setCredentials({ ...res }));
 				navigate("/account");
+			} else if (res && option === "rp") {
+				handleClick("Reset Password", res._id);
 			}
-			// OTHERWISE: COULDNT VERIFY
 		} catch (err) {
 			toast.error(err?.data?.message || err.error);
 		}
-		// dispatch(verifyEmail(userData));
 	};
 
 	return (
@@ -100,20 +100,16 @@ const EmailVerification = ({ handleClick, credential }) => {
 							const userData = { credential };
 							try {
 								const res = await sendEmail(userData);
-								if (res.status === 200) {
+								if (res.error) {
+									toast.error(res.error.message);
+								} else {
 									toast.success(
 										"Email sent! Please check your inbox"
-									);
-								} else {
-									toast.error(
-										"Failed to send email:",
-										res.statusText
 									);
 								}
 							} catch (error) {
 								toast.error(
-									"Error occurred while sending email:",
-									error
+									"Failed to send email. Please try again later."
 								);
 							}
 						}}
