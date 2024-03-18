@@ -7,11 +7,11 @@ Explore, discover, and express your personal style via collections of online pro
   
   # This project is in development and NOT ready for use
 - Verified user:
-  Email: test@test.com
-  Username: test
-  Password: test1234!
-  
+  - Email: test@test.com
+  - Username: test
+  - Password: test1234!
+
 - Not verified:
-  Email: testing@test.com
-  Username: testing
-  Password: test1234!
+  - Email: testing@test.com
+  - Username: testing
+  - Password: test1234!
