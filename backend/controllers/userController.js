@@ -279,7 +279,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 				})
 				.catch((error) => {
 					console.error(error);
-					res.status(500).json({
+					res.status(error.status).json({
 						message: error.message + ". Error code " + error.code,
 					});
 				});
