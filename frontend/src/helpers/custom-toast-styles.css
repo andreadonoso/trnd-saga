@@ -1,0 +1,7 @@
+:root {
+	--toastify-color-success-light: #197e00; /* LIGHT SUCCESS */
+	--toastify-color-error-light: #df2546; /* LIGHT ERROR */
+
+	--toastify-color-success-dark: #6cd86b; /* DARK SUCCESS */
+	--toastify-color-error-dark: #cd3046; /* DARK ERROR */
+}

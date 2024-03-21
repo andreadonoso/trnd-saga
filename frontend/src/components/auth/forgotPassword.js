@@ -4,11 +4,17 @@ import { useSendEmailMutation } from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, TextField, Link, Grid } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import FacebookCircularProgress from "../facebookCircularProgress";
 
 const ForgotPassword = ({ handleClick }) => {
-	const [sendEmail] = useSendEmailMutation();
+	const [sendEmail, { isLoading }] = useSendEmailMutation();
 	const [formData, setFormData] = useState({ credential: "" });
 	const { credential } = formData;
+
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+	const cleanCredential = credential.toLowerCase().trim();
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -21,14 +27,7 @@ const ForgotPassword = ({ handleClick }) => {
 		event.preventDefault();
 
 		try {
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			const usernameRegex = /^[a-zA-Z0-9_.]+$/;
-			const cleanCredential = credential.toLowerCase().trim();
-
-			if (!credential) {
-				toast.error("Please enter all fields");
-				toast.clearWaitingQueue();
-			} else if (
+			if (
 				emailRegex.test(cleanCredential) ||
 				usernameRegex.test(cleanCredential)
 			) {
@@ -64,14 +63,26 @@ const ForgotPassword = ({ handleClick }) => {
 				onChange={onChange}
 				value={credential}
 			/>
-			<Button
+			{/* <Button
+				disabled={!cleanCredential}
 				type="submit"
 				fullWidth
 				variant="contained"
-				sx={{ mt: 0.5, mb: 1.5 }}
+				sx={{ mt: 1, mb: 1.5 }}
 			>
 				Send Email
-			</Button>
+			</Button> */}
+			<LoadingButton
+				type="submit"
+				disabled={!cleanCredential || isLoading}
+				fullWidth
+				variant="contained"
+				sx={{ mt: 1, mb: 1.5 }}
+				loading={isLoading}
+				loadingIndicator={<FacebookCircularProgress />}
+			>
+				<span>Send Email</span>
+			</LoadingButton>
 			<Grid container justifyContent="center">
 				<Grid item>
 					<Link

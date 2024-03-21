@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTheme } from "@mui/material/styles";
-import { Container, CssBaseline, Box, Typography, Fade } from "@mui/material";
+import { Container, CssBaseline, Box, Typography } from "@mui/material";
 import { useWindowDimensions } from "../helpers/hooks";
 
 import black404 from "../assets/black404.png";

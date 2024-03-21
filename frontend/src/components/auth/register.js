@@ -6,19 +6,31 @@ import {
 } from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, TextField, Link, Grid } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { Button, TextField, Link, Grid, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import FacebookCircularProgress from "../facebookCircularProgress";
 
 const Register = ({ handleClick }) => {
+	const theme = useTheme();
 	const [register, { isLoading }] = useRegisterMutation();
 	const [sendEmail] = useSendEmailMutation();
 
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
-		confirmPassword: "",
 	});
+	const { email, password } = formData;
 
-	const { email, password, confirmPassword } = formData;
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const hasLetters = /[a-zA-Z]/;
+	const hasNumbers = /\d/;
+	const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+	const cleanEmail = email.toLowerCase().trim();
+
+	const [isFocused, setIsFocused] = useState(false);
+	const onBlur = () => setIsFocused(false);
+	const onFocus = () => setIsFocused(true);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -31,49 +43,20 @@ const Register = ({ handleClick }) => {
 		event.preventDefault();
 
 		try {
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			const hasLetters = /[a-zA-Z]/;
-			const hasNumbers = /\d/;
-			const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-			const cleanEmail = email.toLowerCase().trim();
+			// REGISTER
+			const userData = { email: cleanEmail, password };
+			const registerRes = await register(userData).unwrap();
+			if (registerRes) {
+				const emailRes = await sendEmail({
+					credential: cleanEmail,
+				}).unwrap();
 
-			if (!cleanEmail || !password || !confirmPassword) {
-				toast.error("Please enter all fields");
-				toast.clearWaitingQueue();
-			} else if (!emailRegex.test(cleanEmail)) {
-				toast.error("Enter a valid email");
-				toast.clearWaitingQueue();
-			} else if (password.length < 8) {
-				toast.error("Password must have 8 - 20 characters");
-				toast.clearWaitingQueue();
-			} else if (
-				!hasLetters.test(password) ||
-				!hasNumbers.test(password) ||
-				!hasSpecialChars.test(password)
-			) {
-				toast.error(
-					"Password must have letters, numbers and special characters"
-				);
-				toast.clearWaitingQueue();
-			} else if (password !== confirmPassword) {
-				toast.error("Passwords don't match");
-				toast.clearWaitingQueue();
-			} else {
-				// REGISTER
-				const userData = { email: cleanEmail, password };
-				const registerRes = await register(userData).unwrap();
-				if (registerRes) {
-					const emailRes = await sendEmail({
-						credential: cleanEmail,
-					}).unwrap();
-
-					if (emailRes) {
-						handleClick("Email Verification", cleanEmail, "li");
-					} else {
-						toast.error(
-							"Failed to send email. Please try again later."
-						);
-					}
+				if (emailRes) {
+					handleClick("Email Verification", cleanEmail, "li");
+				} else {
+					toast.error(
+						"Failed to send email. Please try again later."
+					);
 				}
 			}
 		} catch (err) {
@@ -93,37 +76,89 @@ const Register = ({ handleClick }) => {
 				autoComplete="email"
 				onChange={onChange}
 				value={email}
+				onBlur={onBlur}
+				onFocus={onFocus}
+				helperText={
+					!isFocused &&
+					!emailRegex.test(cleanEmail) &&
+					email.length > 0 ? (
+						<Typography color={theme.palette.error.main}>
+							Please enter a valid email
+						</Typography>
+					) : null
+				}
+				sx={{
+					"& .MuiInputBase-root": {
+						borderColor:
+							!isFocused &&
+							!emailRegex.test(cleanEmail) &&
+							email.length > 0
+								? theme.palette.error.main
+								: "primary",
+					},
+					mt: 1,
+				}}
 			/>
 			<TextField
 				name="password"
 				type="password"
 				id="password"
 				fullWidth
-				placeholder="Password (8-20 characters)"
+				placeholder="Password"
 				inputProps={{ "aria-label": "password" }}
 				autoComplete="current-password"
 				onChange={onChange}
 				value={password}
+				helperText={
+					password.length > 0 ? (
+						<Typography color="primary">
+							Your password must have:
+							<Typography
+								ml={1}
+								color={
+									password.length >= 8
+										? theme.palette.success.main
+										: "grey"
+								}
+							>
+								✓ 8-20 characters
+							</Typography>
+							<Typography
+								ml={1}
+								color={
+									hasLetters.test(password) &&
+									hasNumbers.test(password) &&
+									hasSpecialChars.test(password)
+										? theme.palette.success.main
+										: "grey"
+								}
+							>
+								✓ Letters, numbers, and special characters
+							</Typography>
+						</Typography>
+					) : null
+				}
 			/>
-			<TextField
-				name="confirmPassword"
-				type="password"
-				id="confirmPassword"
-				fullWidth
-				placeholder="Confirm Password"
-				inputProps={{ "aria-label": "password" }}
-				autoComplete="current-password"
-				onChange={onChange}
-				value={confirmPassword}
-			/>
-			<Button
+			<LoadingButton
 				type="submit"
+				disabled={
+					isLoading ||
+					!cleanEmail ||
+					!emailRegex.test(cleanEmail) ||
+					!password ||
+					password.length < 8 ||
+					!hasLetters.test(password) ||
+					!hasNumbers.test(password) ||
+					!hasSpecialChars.test(password)
+				}
 				fullWidth
 				variant="contained"
-				sx={{ mt: 0.5, mb: 1.5 }}
+				sx={{ mt: 1, mb: 1.5 }}
+				loading={isLoading}
+				loadingIndicator={<FacebookCircularProgress />}
 			>
-				Sign Up
-			</Button>
+				<span>Sign Up</span>
+			</LoadingButton>
 			<Grid container justifyContent="center">
 				<Grid item>
 					<Link

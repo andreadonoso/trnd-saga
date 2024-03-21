@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -9,14 +10,24 @@ import {
 import { setCredentials } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Grid, Link, Typography, Box } from "@mui/material";
+import {
+	Grid,
+	Link,
+	Typography,
+	Box,
+	FormHelperText,
+	CircularProgress,
+} from "@mui/material";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { MuiOtpInput } from "mui-one-time-password-input";
 
 const EmailVerification = ({ handleClick, credential, option }) => {
+	const theme = useTheme();
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const [sendEmail] = useSendEmailMutation();
 	const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
+	const [isVerifying, setIsVerifying] = useState(false);
 	const user = useSelector((state) => state.auth.user);
 
 	useEffect(() => {
@@ -28,28 +39,28 @@ const EmailVerification = ({ handleClick, credential, option }) => {
 	}, [user, navigate]);
 
 	const [otp, setOtp] = useState("");
+	const [isValid, setIsValid] = useState(true);
 
 	const handleChange = (newValue) => {
+		setIsValid(true);
 		setOtp(newValue);
 	};
 
-	function matchIsString(text) {
-		return typeof text === "string";
-	}
-
-	function matchIsNumeric(text) {
-		const isNumber = typeof text === "number";
-		const isString = matchIsString(text);
-		return (isNumber || (isString && text !== "")) && !isNaN(Number(text));
-	}
+	const handleFocus = (event) => {
+		event.target.setSelectionRange(otp.length, otp.length);
+	};
 
 	const validateChar = (value, index) => {
-		return matchIsNumeric(value);
+		return /^\d$/.test(value);
 	};
 
 	const handleComplete = async (finalValue) => {
+		if (isVerifying) return;
+		setIsVerifying(true);
+
 		try {
 			// VERIFY EMAIL
+			document.activeElement.blur();
 			const userData = { credential, code: finalValue };
 			const res = await verifyEmail(userData).unwrap();
 			if (res.emailVerified && option === "li") {
@@ -59,36 +70,85 @@ const EmailVerification = ({ handleClick, credential, option }) => {
 				handleClick("Reset Password", res._id);
 			}
 		} catch (err) {
-			toast.error(err?.data?.message || err.error);
+			// console.log(err);
+			if (err?.data?.message !== "Incorrect verification code") {
+				toast.error(err?.data?.message || err.error);
+			} else {
+				setOtp("");
+				setIsValid(false);
+			}
+		} finally {
+			setIsVerifying(false);
 		}
 	};
 
 	return (
 		<form noValidate>
-			<MuiOtpInput
-				value={otp}
-				length={6}
-				onChange={handleChange}
-				validateChar={validateChar}
-				onComplete={handleComplete}
+			<Box
 				sx={{
-					gap: "5px",
-					mb: 2,
+					height: "90px",
 					display: "flex",
-					justifyContent: "center",
-					"& .MuiInputBase-input": {
-						width: "13px",
-						height: "13px",
-					},
+					flexDirection: "column",
+					alignItems: "center",
 				}}
-				autoFocus
-			/>
+			>
+				{isLoading ? (
+					<CircularProgress
+						color="secondary"
+						size={30}
+						sx={{ mt: 2 }}
+					/>
+				) : (
+					<>
+						<MuiOtpInput
+							autoFocus
+							value={otp}
+							length={6}
+							onChange={handleChange}
+							onFocus={handleFocus}
+							validateChar={validateChar}
+							onComplete={handleComplete}
+							TextFieldsProps={{ type: "tel" }}
+							sx={{
+								gap: "5px",
+								mb: 0.5,
+								display: "flex",
+								justifyContent: "center",
+								"& .MuiInputBase-input": {
+									width: "13px",
+									height: "13px",
+								},
+								"& .MuiInputBase-root": {
+									borderColor: !isValid
+										? theme.palette.error.main
+										: "primary",
+								},
+							}}
+						/>
+						{!isValid && (
+							<FormHelperText
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									lineHeight: "inherit",
+									color: theme.palette.error.main,
+								}}
+							>
+								<ErrorOutlineIcon
+									fontSize="inherit"
+									sx={{
+										marginRight: "4px",
+										color: theme.palette.error.main,
+									}}
+								/>
+								Incorrect verification code
+							</FormHelperText>
+						)}
+					</>
+				)}
+			</Box>
 			<Box justifyContent="center">
-				<Typography
-					align="center"
-					sx={{ mt: 2, mb: 3 }}
-					variant="body1"
-				>
+				<Typography align="center" sx={{ mb: 3 }} variant="body1">
 					A verification code has been sent to your email. Please make
 					sure to check your spam folder.
 				</Typography>
