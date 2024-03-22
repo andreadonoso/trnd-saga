@@ -63,18 +63,9 @@ const ForgotPassword = ({ handleClick }) => {
 				onChange={onChange}
 				value={credential}
 			/>
-			{/* <Button
-				disabled={!cleanCredential}
-				type="submit"
-				fullWidth
-				variant="contained"
-				sx={{ mt: 1, mb: 1.5 }}
-			>
-				Send Email
-			</Button> */}
 			<LoadingButton
 				type="submit"
-				disabled={!cleanCredential || isLoading}
+				disabled={isLoading || !cleanCredential}
 				fullWidth
 				variant="contained"
 				sx={{ mt: 1, mb: 1.5 }}

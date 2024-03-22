@@ -5,19 +5,41 @@ import { useDispatch } from "react-redux";
 import { useResetPasswordMutation } from "../../slices/usersApiSlice";
 import { setCredentials } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
-import { Button, TextField, Link, Grid } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { TextField, Link, Grid, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import FacebookCircularProgress from "../facebookCircularProgress";
 
 const ResetPassword = ({ handleClick, id }) => {
+	const theme = useTheme();
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-	const [resetPassword] = useResetPasswordMutation();
+	const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
 	const [formData, setFormData] = useState({
 		password: "",
 		confirmPassword: "",
 	});
-
 	const { password, confirmPassword } = formData;
+
+	const hasLetters = /[a-zA-Z]/;
+	const hasNumbers = /\d/;
+	const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+	const lengthReq = password.length > 7 && password.length < 21;
+	const charReq =
+		hasLetters.test(password) &&
+		hasNumbers.test(password) &&
+		hasSpecialChars.test(password);
+
+	// Validation for password textfield
+	const [isFocusedP, setIsFocusedP] = useState(false);
+	const onBlurP = () => setIsFocusedP(false);
+	const onFocusP = () => setIsFocusedP(true);
+
+	// Validation for confirm password textfield
+	const [isFocusedCP, setIsFocusedCP] = useState(false);
+	const onBlurCP = () => setIsFocusedCP(false);
+	const onFocusCP = () => setIsFocusedCP(true);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -30,40 +52,16 @@ const ResetPassword = ({ handleClick, id }) => {
 		event.preventDefault();
 
 		try {
-			const hasLetters = /[a-zA-Z]/;
-			const hasNumbers = /\d/;
-			const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-
-			if (!password || !confirmPassword) {
-				toast.error("Please enter all fields");
-				toast.clearWaitingQueue();
-			} else if (password.length < 8) {
-				toast.error("Password must have 8 - 20 characters");
-				toast.clearWaitingQueue();
-			} else if (
-				!hasLetters.test(password) ||
-				!hasNumbers.test(password) ||
-				!hasSpecialChars.test(password)
-			) {
-				toast.error(
-					"Password must have letters, numbers and special characters"
-				);
-				toast.clearWaitingQueue();
-			} else if (password !== confirmPassword) {
-				toast.error("Passwords don't match");
-				toast.clearWaitingQueue();
+			// RESET PASSWORD
+			const userData = { id, password };
+			const resetRes = await resetPassword(userData).unwrap();
+			if (resetRes) {
+				dispatch(setCredentials({ ...resetRes }));
+				navigate("/account");
 			} else {
-				// RESET PASSWORD
-				const userData = { id, password };
-				const resetRes = await resetPassword(userData).unwrap();
-				if (resetRes) {
-					dispatch(setCredentials({ ...resetRes }));
-					navigate("/account");
-				} else {
-					toast.error(
-						"Could not reset password. Please try again later."
-					);
-				}
+				toast.error(
+					"Could not reset password. Please try again later."
+				);
 			}
 		} catch (err) {
 			toast.error(err?.data?.message || err.error);
@@ -77,11 +75,61 @@ const ResetPassword = ({ handleClick, id }) => {
 				type="password"
 				id="password"
 				fullWidth
-				placeholder="Password (8-20 characters)"
+				placeholder="Password"
 				inputProps={{ "aria-label": "password" }}
 				autoComplete="current-password"
 				onChange={onChange}
 				value={password}
+				onBlur={onBlurP}
+				onFocus={onFocusP}
+				helperText={
+					password.length > 0 ? (
+						<Typography color="primary" component={"span"}>
+							Your password must have: <br />
+							<Typography
+								component={"span"}
+								ml={1}
+								color={
+									lengthReq
+										? theme.palette.success.main
+										: !isFocusedP &&
+										  !lengthReq &&
+										  password.length > 0
+										? theme.palette.error.main
+										: "grey"
+								}
+							>
+								✓ 8-20 characters <br />
+							</Typography>
+							<Typography
+								component={"span"}
+								ml={1}
+								color={
+									charReq
+										? theme.palette.success.main
+										: !isFocusedP &&
+										  !charReq &&
+										  password.length > 0
+										? theme.palette.error.main
+										: "grey"
+								}
+							>
+								✓ Letters, numbers, and special characters
+							</Typography>
+						</Typography>
+					) : null
+				}
+				sx={{
+					"& .MuiInputBase-root": {
+						borderColor:
+							!isFocusedP &&
+							(!lengthReq || !charReq) &&
+							password.length > 0
+								? theme.palette.error.main
+								: "primary",
+					},
+					mt: 1,
+				}}
 			/>
 			<TextField
 				name="confirmPassword"
@@ -93,15 +141,50 @@ const ResetPassword = ({ handleClick, id }) => {
 				autoComplete="current-password"
 				onChange={onChange}
 				value={confirmPassword}
+				onBlur={onBlurCP}
+				onFocus={onFocusCP}
+				helperText={
+					!isFocusedCP &&
+					confirmPassword !== password &&
+					confirmPassword.length > 0 ? (
+						<Typography
+							color={theme.palette.error.main}
+							component={"span"}
+						>
+							Passwords don't match
+						</Typography>
+					) : null
+				}
+				sx={{
+					"& .MuiInputBase-root": {
+						borderColor:
+							!isFocusedCP &&
+							confirmPassword !== password &&
+							confirmPassword.length > 0
+								? theme.palette.error.main
+								: "primary",
+					},
+					mt: 1,
+				}}
 			/>
-			<Button
+			<LoadingButton
 				type="submit"
+				disabled={
+					isLoading ||
+					!confirmPassword ||
+					!password ||
+					!lengthReq ||
+					!charReq ||
+					confirmPassword !== password
+				}
 				fullWidth
 				variant="contained"
-				sx={{ mt: 0.5, mb: 1.5 }}
+				sx={{ mt: 1, mb: 1.5 }}
+				loading={isLoading}
+				loadingIndicator={<FacebookCircularProgress />}
 			>
-				Reset Password
-			</Button>
+				<span>Reset Password</span>
+			</LoadingButton>
 			<Grid container justifyContent="center">
 				<Grid item>
 					<Link

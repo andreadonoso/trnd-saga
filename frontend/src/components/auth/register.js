@@ -7,7 +7,7 @@ import {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTheme } from "@mui/material/styles";
-import { Button, TextField, Link, Grid, Typography } from "@mui/material";
+import { TextField, Link, Grid, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import FacebookCircularProgress from "../facebookCircularProgress";
 
@@ -27,10 +27,21 @@ const Register = ({ handleClick }) => {
 	const hasNumbers = /\d/;
 	const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
 	const cleanEmail = email.toLowerCase().trim();
+	const lengthReq = password.length > 7 && password.length < 21;
+	const charReq =
+		hasLetters.test(password) &&
+		hasNumbers.test(password) &&
+		hasSpecialChars.test(password);
 
-	const [isFocused, setIsFocused] = useState(false);
-	const onBlur = () => setIsFocused(false);
-	const onFocus = () => setIsFocused(true);
+	// Validation for email textfield
+	const [isFocusedE, setIsFocusedE] = useState(false);
+	const onBlurE = () => setIsFocusedE(false);
+	const onFocusE = () => setIsFocusedE(true);
+
+	// Validation for password textfield
+	const [isFocusedP, setIsFocusedP] = useState(false);
+	const onBlurP = () => setIsFocusedP(false);
+	const onFocusP = () => setIsFocusedP(true);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -76,13 +87,16 @@ const Register = ({ handleClick }) => {
 				autoComplete="email"
 				onChange={onChange}
 				value={email}
-				onBlur={onBlur}
-				onFocus={onFocus}
+				onBlur={onBlurE}
+				onFocus={onFocusE}
 				helperText={
-					!isFocused &&
+					!isFocusedE &&
 					!emailRegex.test(cleanEmail) &&
 					email.length > 0 ? (
-						<Typography color={theme.palette.error.main}>
+						<Typography
+							color={theme.palette.error.main}
+							component={"span"}
+						>
 							Please enter a valid email
 						</Typography>
 					) : null
@@ -90,7 +104,7 @@ const Register = ({ handleClick }) => {
 				sx={{
 					"& .MuiInputBase-root": {
 						borderColor:
-							!isFocused &&
+							!isFocusedE &&
 							!emailRegex.test(cleanEmail) &&
 							email.length > 0
 								? theme.palette.error.main
@@ -109,27 +123,37 @@ const Register = ({ handleClick }) => {
 				autoComplete="current-password"
 				onChange={onChange}
 				value={password}
+				onBlur={onBlurP}
+				onFocus={onFocusP}
 				helperText={
 					password.length > 0 ? (
-						<Typography color="primary">
-							Your password must have:
+						<Typography color="primary" component={"span"}>
+							Your password must have: <br />
 							<Typography
+								component={"span"}
 								ml={1}
 								color={
-									password.length >= 8
+									lengthReq
 										? theme.palette.success.main
+										: !isFocusedP &&
+										  !lengthReq &&
+										  password.length > 0
+										? theme.palette.error.main
 										: "grey"
 								}
 							>
-								✓ 8-20 characters
+								✓ 8-20 characters <br />
 							</Typography>
 							<Typography
+								component={"span"}
 								ml={1}
 								color={
-									hasLetters.test(password) &&
-									hasNumbers.test(password) &&
-									hasSpecialChars.test(password)
+									charReq
 										? theme.palette.success.main
+										: !isFocusedP &&
+										  !charReq &&
+										  password.length > 0
+										? theme.palette.error.main
 										: "grey"
 								}
 							>
@@ -138,6 +162,17 @@ const Register = ({ handleClick }) => {
 						</Typography>
 					) : null
 				}
+				sx={{
+					"& .MuiInputBase-root": {
+						borderColor:
+							!isFocusedP &&
+							(!lengthReq || !charReq) &&
+							password.length > 0
+								? theme.palette.error.main
+								: "primary",
+					},
+					mt: 1,
+				}}
 			/>
 			<LoadingButton
 				type="submit"
@@ -146,10 +181,8 @@ const Register = ({ handleClick }) => {
 					!cleanEmail ||
 					!emailRegex.test(cleanEmail) ||
 					!password ||
-					password.length < 8 ||
-					!hasLetters.test(password) ||
-					!hasNumbers.test(password) ||
-					!hasSpecialChars.test(password)
+					!lengthReq ||
+					!charReq
 				}
 				fullWidth
 				variant="contained"

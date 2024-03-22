@@ -20,14 +20,6 @@ const Login = ({ handleClick }) => {
 	const [sendEmail] = useSendEmailMutation();
 	const user = useSelector((state) => state.auth.user);
 
-	useEffect(() => {
-		if (user) {
-			toast.dismiss();
-			navigate("/account");
-		}
-		toast.clearWaitingQueue();
-	}, [user, navigate]);
-
 	const [formData, setFormData] = useState({
 		credential: "",
 		password: "",
@@ -37,6 +29,14 @@ const Login = ({ handleClick }) => {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const usernameRegex = /^[a-zA-Z0-9_.]+$/;
 	const cleanCredential = credential.toLowerCase().trim();
+
+	useEffect(() => {
+		if (user) {
+			toast.dismiss();
+			navigate("/account");
+		}
+		toast.clearWaitingQueue();
+	}, [user, navigate]);
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -111,7 +111,7 @@ const Login = ({ handleClick }) => {
 			/>
 			<LoadingButton
 				type="submit"
-				disabled={!cleanCredential || !password || isLoading}
+				disabled={isLoading || !cleanCredential || !password}
 				fullWidth
 				variant="contained"
 				sx={{ mt: 1, mb: 1.5 }}

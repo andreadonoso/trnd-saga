@@ -44,6 +44,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						secondary: "#DE3163",
 					},
 					success: {
+						// main: "#6CD86B",197e00
 						main: "#6CD86B",
 					},
 					error: {
@@ -121,7 +122,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
 			styleOverrides: {
 				root: {
 					"& .MuiInputBase-root": {
-						backgroundColor: "primary",
 						borderRadius: 5,
 						border: "1px solid transparent",
 						transition: "border-color 0.2s",
@@ -141,6 +141,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						paddingLeft: 17,
 						paddingRight: 17,
 					},
+					"& .MuiFilledInput-root": {
+						backgroundColor:
+							mode === "light"
+								? "rgba(0, 0, 0, 0.09)"
+								: "rgba(255, 255, 255, 0.13)",
+					},
 				},
 			},
 			defaultProps: {
@@ -150,7 +156,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
 				InputProps: { disableUnderline: true },
 				InputLabelProps: { size: "small" },
 				size: "normal",
-				// margin: "8px 0px 0",
 				sx: {
 					mt: "7px",
 				},
@@ -167,7 +172,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
 					"&:hover": {
 						backgroundColor: alpha(
 							mode === "light" ? "#000000" : "#ffffff",
-							0.75
+							0.85
 						),
 					},
 					"&.Mui-disabled": {
