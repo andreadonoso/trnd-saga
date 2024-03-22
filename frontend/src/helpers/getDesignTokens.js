@@ -147,6 +147,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
 								? "rgba(0, 0, 0, 0.07)"
 								: "rgba(255, 255, 255, 0.09)",
 					},
+					"& .MuiFilledInput-root:hover": {
+						backgroundColor:
+							mode === "light"
+								? "rgba(0, 0, 0, 0.07)"
+								: "rgba(255, 255, 255, 0.09)",
+					},
 				},
 			},
 			defaultProps: {

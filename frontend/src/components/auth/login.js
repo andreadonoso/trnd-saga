@@ -88,6 +88,7 @@ const Login = ({ handleClick }) => {
 	return (
 		<form onSubmit={onSubmit} noValidate>
 			<TextField
+				autoFocus
 				name="credential"
 				type="text"
 				id="credential"
