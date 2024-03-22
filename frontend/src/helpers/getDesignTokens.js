@@ -144,8 +144,8 @@ const getDesignTokens = (mode: PaletteMode) => ({
 					"& .MuiFilledInput-root": {
 						backgroundColor:
 							mode === "light"
-								? "rgba(0, 0, 0, 0.09)"
-								: "rgba(255, 255, 255, 0.13)",
+								? "rgba(0, 0, 0, 0.07)"
+								: "rgba(255, 255, 255, 0.09)",
 					},
 				},
 			},

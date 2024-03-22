@@ -37,103 +37,110 @@ const LandingPage = () => {
 	};
 
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "space-between",
-				alignItems: "center",
-				height: { height },
-			}}
-		>
+		<Fade in={true} timeout={1000}>
 			<Box
 				sx={{
 					display: "flex",
-					flexDirection: "row",
+					flexDirection: "column",
 					justifyContent: "space-between",
 					alignItems: "center",
-					width: "100%",
-					pr: 1,
-					pl: 1,
-					pt: 0.5,
+					height: { height },
 				}}
 			>
-				<About />
-				<Copyright />
-			</Box>
-			<Container component="main" maxWidth="xs">
-				<CssBaseline />
 				<Box
 					sx={{
-						ml: 3,
-						mr: 3,
-						mt: 10,
 						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
+						flexDirection: "row",
+						justifyContent: "space-between",
 						alignItems: "center",
+						width: "100%",
+						pr: 1,
+						pl: 1,
+						pt: 0.5,
 					}}
 				>
-					<img
-						src={
-							theme.palette.mode === "light"
-								? logoBlack
-								: logoWhite
-						}
-						alt="Logo"
-						height="50px"
-					/>
-					<Fade in={checked} timeout={500}>
-						<Box
-							sx={{
-								minHeight: "380px",
-							}}
-						>
+					<About />
+					<Copyright />
+				</Box>
+				<Container component="main" maxWidth="xs">
+					<CssBaseline />
+					<Box
+						sx={{
+							ml: 3,
+							mr: 3,
+							mt: 10,
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						<img
+							src={
+								theme.palette.mode === "light"
+									? logoBlack
+									: logoWhite
+							}
+							alt="Logo"
+							height="50px"
+						/>
+						<Fade in={checked} timeout={500}>
 							<Box
 								sx={{
-									margin: 1,
-									display: "flex",
-									flexDirection: "column",
-									justifyContent: "center",
-									alignItems: "center",
+									minHeight: "380px",
 								}}
 							>
-								<Typography variant="subtitle" sx={{ mt: 3.3 }}>
-									{title}
-								</Typography>
+								<Box
+									sx={{
+										margin: 1,
+										display: "flex",
+										flexDirection: "column",
+										justifyContent: "center",
+										alignItems: "center",
+									}}
+								>
+									<Typography
+										variant="subtitle"
+										sx={{ mt: 3.3 }}
+									>
+										{title}
+									</Typography>
+								</Box>
+								{title === "Log In" && (
+									<Login handleClick={handleClick} />
+								)}
+								{title === "Sign Up" && (
+									<Register handleClick={handleClick} />
+								)}
+								{title === "Forgot Password?" && (
+									<ForgotPassword handleClick={handleClick} />
+								)}
+								{title === "Email Verification" && (
+									<EmailVerification
+										handleClick={handleClick}
+										credential={credential}
+										option={option}
+									/>
+								)}
+								{title === "Reset Password" && (
+									<ResetPassword
+										handleClick={handleClick}
+										id={credential}
+									/>
+								)}
 							</Box>
-							{title === "Log In" && (
-								<Login handleClick={handleClick} />
-							)}
-							{title === "Sign Up" && (
-								<Register handleClick={handleClick} />
-							)}
-							{title === "Forgot Password?" && (
-								<ForgotPassword handleClick={handleClick} />
-							)}
-							{title === "Email Verification" && (
-								<EmailVerification
-									handleClick={handleClick}
-									credential={credential}
-									option={option}
-								/>
-							)}
-							{title === "Reset Password" && (
-								<ResetPassword
-									handleClick={handleClick}
-									id={credential}
-								/>
-							)}
-						</Box>
-					</Fade>
-				</Box>
-			</Container>
-			<img
-				src={theme.palette.mode === "light" ? trndsBlack : trndsWhite}
-				alt="Logo"
-				width="100%"
-			/>
-		</Box>
+						</Fade>
+					</Box>
+				</Container>
+				<img
+					src={
+						theme.palette.mode === "light" ? trndsBlack : trndsWhite
+					}
+					alt="Logo"
+					width="100%"
+				/>
+			</Box>
+		</Fade>
 	);
 };
 

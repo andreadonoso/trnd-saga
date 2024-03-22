@@ -64,21 +64,25 @@ const EmailVerification = ({ handleClick, credential, option }) => {
 			const userData = { credential, code: finalValue };
 			const res = await verifyEmail(userData).unwrap();
 			if (res.emailVerified && option === "li") {
+				setOtp("");
 				dispatch(setCredentials({ ...res }));
 				navigate("/account");
 			} else if (res && option === "rp") {
+				setOtp("");
 				handleClick("Reset Password", res._id);
 			}
 		} catch (err) {
-			// console.log(err);
 			if (err?.data?.message !== "Incorrect verification code") {
 				toast.error(err?.data?.message || err.error);
+				return;
 			} else {
 				setOtp("");
 				setIsValid(false);
+				return;
 			}
 		} finally {
 			setIsVerifying(false);
+			return;
 		}
 	};
 
