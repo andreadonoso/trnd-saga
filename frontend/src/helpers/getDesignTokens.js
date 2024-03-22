@@ -20,6 +20,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						primary: "#000000",
 						secondary: "#EE4B2B",
 					},
+					success: {
+						main: "#197E00",
+					},
+					error: {
+						main: "#DF2546",
+					},
 			  }
 			: {
 					// DARK mode
@@ -36,6 +42,13 @@ const getDesignTokens = (mode: PaletteMode) => ({
 					text: {
 						primary: "#FFFFFF",
 						secondary: "#DE3163",
+					},
+					success: {
+						// main: "#6CD86B",197e00
+						main: "#6CD86B",
+					},
+					error: {
+						main: "#CD3046",
 					},
 			  }),
 	},
@@ -109,7 +122,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
 			styleOverrides: {
 				root: {
 					"& .MuiInputBase-root": {
-						backgroundColor: "primary",
 						borderRadius: 5,
 						border: "1px solid transparent",
 						transition: "border-color 0.2s",
@@ -122,24 +134,30 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						fontWeight: "300",
 					},
 					"& .MuiInputBase-input": {
+						borderRadius: 5,
 						fontSize: "medium",
 						fontWeight: "300",
 						paddingBottom: 15,
 						paddingLeft: 17,
 						paddingRight: 17,
-						borderRadius: 5,
+					},
+					"& .MuiFilledInput-root": {
+						backgroundColor:
+							mode === "light"
+								? "rgba(0, 0, 0, 0.07)"
+								: "rgba(255, 255, 255, 0.09)",
 					},
 				},
 			},
 			defaultProps: {
 				color: "secondary",
 				variant: "filled",
-				size: "normal",
 				hiddenLabel: true,
 				InputProps: { disableUnderline: true },
 				InputLabelProps: { size: "small" },
+				size: "normal",
 				sx: {
-					padding: "4px 0px",
+					mt: "7px",
 				},
 			},
 		},
@@ -155,6 +173,14 @@ const getDesignTokens = (mode: PaletteMode) => ({
 						backgroundColor: alpha(
 							mode === "light" ? "#000000" : "#ffffff",
 							0.85
+						),
+					},
+					"&.Mui-disabled": {
+						backgroundColor:
+							mode === "light" ? "#000000" : "#ffffff",
+						color: alpha(
+							mode === "dark" ? "#000000" : "#ffffff",
+							0.4
 						),
 					},
 				},

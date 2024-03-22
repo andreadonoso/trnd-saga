@@ -9,7 +9,9 @@ import {
 import { setCredentials } from "../../slices/authSlice.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, TextField, Link, Grid } from "@mui/material";
+import { TextField, Link, Grid } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import FacebookCircularProgress from "../facebookCircularProgress";
 
 const Login = ({ handleClick }) => {
 	const dispatch = useDispatch();
@@ -18,6 +20,16 @@ const Login = ({ handleClick }) => {
 	const [sendEmail] = useSendEmailMutation();
 	const user = useSelector((state) => state.auth.user);
 
+	const [formData, setFormData] = useState({
+		credential: "",
+		password: "",
+	});
+	const { credential, password } = formData;
+
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+	const cleanCredential = credential.toLowerCase().trim();
+
 	useEffect(() => {
 		if (user) {
 			toast.dismiss();
@@ -25,13 +37,6 @@ const Login = ({ handleClick }) => {
 		}
 		toast.clearWaitingQueue();
 	}, [user, navigate]);
-
-	const [formData, setFormData] = useState({
-		credential: "",
-		password: "",
-	});
-
-	const { credential, password } = formData;
 
 	const onChange = (event) => {
 		setFormData((prevState) => ({
@@ -44,14 +49,7 @@ const Login = ({ handleClick }) => {
 		event.preventDefault();
 
 		try {
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			const usernameRegex = /^[a-zA-Z0-9_.]+$/;
-			const cleanCredential = credential.toLowerCase().trim();
-
-			if (!credential || !password) {
-				toast.error("Please enter all fields");
-				toast.clearWaitingQueue();
-			} else if (
+			if (
 				emailRegex.test(cleanCredential) ||
 				usernameRegex.test(cleanCredential)
 			) {
@@ -111,14 +109,17 @@ const Login = ({ handleClick }) => {
 				onChange={onChange}
 				value={password}
 			/>
-			<Button
+			<LoadingButton
 				type="submit"
+				disabled={isLoading || !cleanCredential || !password}
 				fullWidth
 				variant="contained"
-				sx={{ mt: 0.5, mb: 1.5 }}
+				sx={{ mt: 1, mb: 1.5 }}
+				loading={isLoading}
+				loadingIndicator={<FacebookCircularProgress />}
 			>
-				Log In
-			</Button>
+				<span>Log In</span>
+			</LoadingButton>
 			<Grid container>
 				<Grid item xs>
 					<Link

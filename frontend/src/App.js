@@ -1,9 +1,11 @@
 import * as React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { ToastContainer, Slide } from "react-toastify";
-import { Outlet } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+import "./helpers/custom-toast-styles.css";
 
 import PrivateRoute from "./components/auth/privateRoute";
 import Header from "./components/header";
@@ -29,13 +31,15 @@ function App({ mode }) {
 				rtl={false}
 				pauseOnFocusLoss
 				draggable
-				theme="colored"
-				// theme={mode.toString()}
 				transition={Slide}
 				limit={1}
-				// toastStyle={{
-				//   backgroundColor: 'rgba(173,12,0,1)',
-				// }}
+				theme="colored"
+				toastStyle={{
+					"--toastify-color-success":
+						"var(--toastify-color-success-" + mode.toString() + ")",
+					"--toastify-color-error":
+						"var(--toastify-color-error-" + mode.toString() + ")",
+				}}
 			/>
 			<BrowserRouter>
 				<Routes>
