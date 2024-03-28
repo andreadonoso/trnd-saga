@@ -121,8 +121,8 @@ const loginUser = asyncHandler(async (req, res) => {
 				emailVerified: user.emailVerified,
 			});
 		} else {
-			res.status(400).json({ message: "Invalid email or password" });
-			throw new Error("Invalid email or password");
+			res.status(400).json({ message: "Invalid credentials" });
+			throw new Error("Invalid credentials");
 		}
 	}
 });
@@ -324,8 +324,8 @@ const resetPassword = asyncHandler(async (req, res) => {
 				emailVerified: user.emailVerified,
 			});
 		} else {
-			res.status(400).json({ message: "Invalid email or password" });
-			throw new Error("Invalid email or password");
+			res.status(400).json({ message: "Invalid credentials" });
+			throw new Error("Invalid credentials");
 		}
 	}
 });
